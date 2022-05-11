@@ -61,92 +61,92 @@ namespace teb_local_planner
 {
 
 /**
- * @class Obstacle
- * @brief Abstract class that defines the interface for modelling obstacles
+ * @class 障碍物
+ * @brief 定义障碍物建模接口的抽象类
  */
 class Obstacle
 {
 public:
   
   /**
-    * @brief Default constructor of the abstract obstacle class
+    * @brief 抽象障碍类的默认构造函数
     */
   Obstacle() : dynamic_(false), centroid_velocity_(Eigen::Vector2d::Zero())
   {
   }
   
   /**
-   * @brief Virtual destructor.
+   * @brief 虚拟析构函数
    */
   virtual ~Obstacle()
   {
   }
 
 
-  /** @name Centroid coordinates (abstract, obstacle type depending) */
+  /** @name 质心坐标（抽象，取决于障碍物类型） */
   //@{ 
 
   /**
-    * @brief Get centroid coordinates of the obstacle
-    * @return Eigen::Vector2d containing the centroid
+    * @brief 获取障碍物的质心坐标
+    * @return Eigen::Vector2d 包含质心
     */
   virtual const Eigen::Vector2d& getCentroid() const = 0;
 
   /**
-    * @brief Get centroid coordinates of the obstacle as complex number
-    * @return std::complex containing the centroid coordinate
+    * @brief 以复数形式获取障碍物的质心坐标
+    * @return std::complex 包含质心坐标
     */
   virtual std::complex<double> getCentroidCplx() const = 0;
 
   //@}
 
 
-  /** @name Collision checking and distance calculations (abstract, obstacle type depending) */
+  /** @name 碰撞检查和距离计算（抽象，取决于障碍物类型）*/
   //@{ 
 
   /**
-    * @brief Check if a given point collides with the obstacle
-    * @param position 2D reference position that should be checked
-    * @param min_dist Minimum distance allowed to the obstacle to be collision free
-    * @return \c true if position is inside the region of the obstacle or if the minimum distance is lower than min_dist
+    * @brief 检查给定点是否与障碍物碰撞
+    * @param position 应检查的二维参考位置
+    * @param min_dist 允许到障碍物无碰撞的最小距离
+    * @return \c true 如果位置在障碍物区域内或最小距离小于min_dist，则为true
     */
   virtual bool checkCollision(const Eigen::Vector2d& position, double min_dist) const = 0;
 
   /**
-    * @brief Check if a given line segment between two points intersects with the obstacle (and additionally keeps a safty distance \c min_dist)
-    * @param line_start 2D point for the end of the reference line
-    * @param line_end 2D point for the end of the reference line
-    * @param min_dist Minimum distance allowed to the obstacle to be collision/intersection free
-    * @return \c true if given line intersects the region of the obstacle or if the minimum distance is lower than min_dist
+    * @brief 检查两点之间的给定线段是否与障碍物相交（并另外保持安全距离 \c min_dist）
+    * @param 参考线末端的二维点
+    * @param line_end 参考线末端的二维点
+    * @param min_dist 允许到障碍物无碰撞/交叉的最小距离
+    * @return \c 如果给定线与障碍物区域相交或最小距离小于 min_dist，则为 true
     */
   virtual bool checkLineIntersection(const Eigen::Vector2d& line_start, const Eigen::Vector2d& line_end, double min_dist=0) const = 0;
 
   /**
-    * @brief Get the minimum euclidean distance to the obstacle (point as reference)
-    * @param position 2d reference position
-    * @return The nearest possible distance to the obstacle
+    * @brief 获取到障碍物的最小欧式距离（点作为参考）
+    * @param position 2d 参考位置
+    * @return 距离障碍物最近的距离
     */
   virtual double getMinimumDistance(const Eigen::Vector2d& position) const = 0;
 
   /**
-   * @brief Get the minimum euclidean distance to the obstacle (line as reference)
-   * @param line_start 2d position of the begin of the reference line
-   * @param line_end 2d position of the end of the reference line
-   * @return The nearest possible distance to the obstacle
+   * @brief 获取到障碍物的最小欧式距离（线作为参考）
+   * @param line_start 参考线开始的二维位置
+   * @param line_end 参考线结束的二维位置
+   * @return 距离障碍物最近的距离
    */
   virtual double getMinimumDistance(const Eigen::Vector2d& line_start, const Eigen::Vector2d& line_end) const = 0;
   
   /**
-   * @brief Get the minimum euclidean distance to the obstacle (polygon as reference)
-   * @param polygon Vertices (2D points) describing a closed polygon
-   * @return The nearest possible distance to the obstacle
+   * @brief 获取到障碍物的最小欧式距离（多边形作为参考）
+   * @param polygon 顶点（2D 点）描述一个封闭的多边形
+   * @return 距离障碍物最近的距离
    */
   virtual double getMinimumDistance(const Point2dContainer& polygon) const = 0;
 
   /**
-   * @brief Get the closest point on the boundary of the obstacle w.r.t. a specified reference position
-   * @param position reference 2d position
-   * @return closest point on the obstacle boundary
+   * @brief 获取指定参考位置的障碍物边界上最近的点
+   * @param position 参考二维位置
+   * @return 障碍物边界上的最近点
    */
   virtual Eigen::Vector2d getClosestPoint(const Eigen::Vector2d& position) const = 0;
 
@@ -154,38 +154,38 @@ public:
 
 
 
-  /** @name Velocity related methods for non-static, moving obstacles */
+  /** @name 非静态、移动障碍物的速度相关方法 */
   //@{ 
 
   /**
-    * @brief Get the estimated minimum spatiotemporal distance to the moving obstacle using a constant velocity model (point as reference)
-    * @param position 2d reference position
-    * @param t time, for which the minimum distance to the obstacle is estimated
-    * @return The nearest possible distance to the obstacle at time t
+    * @brief 使用等速模型（点作为参考）获取到移动障碍物的估计最小时空距离
+    * @param position 2d 参考位置
+    * @param t 时间，估计到障碍物的最小距离
+    * @return 在时间 t 到障碍物的最近可能距离
     */
   virtual double getMinimumSpatioTemporalDistance(const Eigen::Vector2d& position, double t) const = 0;
 
   /**
-    * @brief Get the estimated minimum spatiotemporal distance to the moving obstacle using a constant velocity model (line as reference)
-    * @param line_start 2d position of the begin of the reference line
-    * @param line_end 2d position of the end of the reference line
-    * @param t time, for which the minimum distance to the obstacle is estimated
-    * @return The nearest possible distance to the obstacle at time t
+    * @brief 使用等速模型（以线为参考）获取到移动障碍物的估计最小时空距离
+    * @param line_start 参考线开始的二维位置
+    * @param line_end 参考线结束的二维位置
+    * @param t 时间，估计到障碍物的最小距离
+    * @return 在时间 t 到障碍物的最近可能距离
     */
   virtual double getMinimumSpatioTemporalDistance(const Eigen::Vector2d& line_start, const Eigen::Vector2d& line_end, double t) const = 0;
 
   /**
-    * @brief Get the estimated minimum spatiotemporal distance to the moving obstacle using a constant velocity model (polygon as reference)
-    * @param polygon Vertices (2D points) describing a closed polygon
-    * @param t time, for which the minimum distance to the obstacle is estimated
-    * @return The nearest possible distance to the obstacle at time t
+    * @brief 使用等速模型（多边形作为参考）获取到移动障碍物的估计最小时空距离
+    * @param polygon 顶点（2D 点）描述一个封闭的多边形
+    * @param t 时间，估计到障碍物的最小距离
+    * @return 在时间 t 到障碍物的最近可能距离
     */
   virtual double getMinimumSpatioTemporalDistance(const Point2dContainer& polygon, double t) const = 0;
 
   /**
-    * @brief Predict position of the centroid assuming a constant velocity model
-    * @param[in]  t         time in seconds for the prediction (t>=0)
-    * @param[out] position  predicted 2d position of the centroid
+    * @brief 假设恒速模型预测质心的位置
+    * @param[in]  t         时间以秒为单位进行预测 (t>=0)
+    * @param[out] position 预测的质心的 2d 位置
     */
   virtual void predictCentroidConstantVelocity(double t, Eigen::Ref<Eigen::Vector2d> position) const
   {
@@ -193,38 +193,38 @@ public:
   }
 
   /**
-    * @brief Check if the obstacle is a moving with a (non-zero) velocity
-    * @return \c true if the obstacle is not marked as static, \c false otherwise
+    * @brief 检查障碍物是否以（非零）速度移动
+    * @return \c 如果障碍物没有被标记为静态，则为 true，否则为 \c false
     */	
   bool isDynamic() const {return dynamic_;}
 
   /**
-    * @brief Set the 2d velocity (vx, vy) of the obstacle w.r.t to the centroid
-    * @remarks Setting the velocity using this function marks the obstacle as dynamic (@see isDynamic)
-    * @param vel 2D vector containing the velocities of the centroid in x and y directions
+    * @brief 将障碍物 wrt 的 2d 速度 (vx, vy) 设置为质心
+    * @remarks 使用此功能设置速度将障碍物标记为动态（@see isDynamic）
+    * @param vel 2D 向量，包含质心在 x 和 y 方向上的速度
     */
   void setCentroidVelocity(const Eigen::Ref<const Eigen::Vector2d>& vel) {centroid_velocity_ = vel; dynamic_=true;} 
 
   /**
-    * @brief Set the 2d velocity (vx, vy) of the obstacle w.r.t to the centroid
-    * @remarks Setting the velocity using this function marks the obstacle as dynamic (@see isDynamic)
-    * @param velocity geometry_msgs::TwistWithCovariance containing the velocity of the obstacle
-    * @param orientation geometry_msgs::QuaternionStamped containing the orientation of the obstacle
+    * @brief 将障碍物 wrt 的 2d 速度 (vx, vy) 设置为质心
+    * @remarks 使用此功能设置速度将障碍物标记为动态（@see isDynamic）
+    * @param velocity geometry_msgs::TwistWithCovariance 包含障碍物的速度
+    * @param orientation geometry_msgs::QuaternionStamped 包含障碍物的方向
     */
   void setCentroidVelocity(const geometry_msgs::TwistWithCovariance& velocity,
                            const geometry_msgs::Quaternion& orientation)
   {
-    // Set velocity, if obstacle is moving
+    // 设置速度，如果障碍物在移动
     Eigen::Vector2d vel;
     vel.coeffRef(0) = velocity.twist.linear.x;
     vel.coeffRef(1) = velocity.twist.linear.y;
 
-    // If norm of velocity is less than 0.001, consider obstacle as not dynamic
+    // 如果速度范数小于 0.001，则认为障碍物不是动态的
     // TODO: Get rid of constant
     if (vel.norm() < 0.001)
       return;
 
-    // currently velocity published by stage is already given in the map frame
+    // 当前阶段发布的速度已经在地图框中给出
 //    double yaw = tf::getYaw(orientation.quaternion);
 //    ROS_INFO("Yaw: %f", yaw);
 //    Eigen::Rotation2Dd rot(yaw);
@@ -239,8 +239,8 @@ public:
   }
 
   /**
-    * @brief Get the obstacle velocity (vx, vy) (w.r.t. to the centroid)
-    * @returns 2D vector containing the velocities of the centroid in x and y directions
+    * @brief 获取障碍物速度 (vx, vy) (wrt to the centroid)
+    * @returns 包含质心在 x 和 y 方向上的速度的二维向量
     */
   const Eigen::Vector2d& getCentroidVelocity() const {return centroid_velocity_;}
 
@@ -248,16 +248,16 @@ public:
 
 
 
-  /** @name Helper Functions */
+  /** @name 辅助函数 */
   //@{ 
   
   /**
-   * @brief Convert the obstacle to a polygon message
+   * @brief 将障碍物转换为多边形消息
    * 
-   * Convert the obstacle to a corresponding polygon msg.
-   * Point obstacles have one vertex, lines have two vertices 
-   * and polygons might are implictly closed such that the start vertex must not be repeated.
-   * @param[out] polygon the polygon message
+   * 将障碍物转换为相应的多边形消息。
+   * 点障碍物有一个顶点，线有两个顶点
+   * 和多边形可能是隐式闭合的，因此起始顶点不能重复。
+   * @param[out] polygon 多边形消息
    */
   virtual void toPolygonMsg(geometry_msgs::Polygon& polygon) = 0;
 
@@ -274,155 +274,155 @@ public:
       twistWithCovariance.twist.linear.y = 0;
     }
 
-    // TODO:Covariance
+    // TODO:协方差
   }
 
   //@}
 	
 protected:
 	   
-  bool dynamic_; //!< Store flag if obstacle is dynamic (resp. a moving obstacle)
-  Eigen::Vector2d centroid_velocity_; //!< Store the corresponding velocity (vx, vy) of the centroid (zero, if _dynamic is \c true)
+  bool dynamic_; //!< 如果障碍物是动态的（分别是移动的障碍物），则存储标志
+  Eigen::Vector2d centroid_velocity_; //!< 存储质心的对应速度 (vx, vy)（零，如果 _dynamic 为 \c 真）
   
 public:	
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 
-//! Abbrev. for shared obstacle pointers
+//! 缩写。用于共享障碍物指针
 typedef boost::shared_ptr<Obstacle> ObstaclePtr;
-//! Abbrev. for shared obstacle const pointers
+//! 缩写。对于共享障碍 const 指针
 typedef boost::shared_ptr<const Obstacle> ObstacleConstPtr;
-//! Abbrev. for containers storing multiple obstacles
+//! 缩写。用于存放多个障碍物的容器
 typedef std::vector<ObstaclePtr> ObstContainer;
 
 
 
 /**
  * @class PointObstacle
- * @brief Implements a 2D point obstacle
+ * @brief 实现一个 2D 点障碍物
  */
 class PointObstacle : public Obstacle
 {
 public:
   
   /**
-    * @brief Default constructor of the point obstacle class
+    * @brief 点障碍类的默认构造函数
     */
   PointObstacle() : Obstacle(), pos_(Eigen::Vector2d::Zero())
   {}
   
   /**
-    * @brief Construct PointObstacle using a 2d position vector
-    * @param position 2d position that defines the current obstacle position
+    * @brief 使用二维位置向量构造 PointObstacle
+    * @param position 定义当前障碍物位置的 2d 位置
     */
   PointObstacle(const Eigen::Ref< const Eigen::Vector2d>& position) : Obstacle(), pos_(position)
   {}
   
   /**
-    * @brief Construct PointObstacle using x- and y-coordinates
-    * @param x x-coordinate
-    * @param y y-coordinate
+    * @brief 使用 x 和 y 坐标构造 PointObstacle
+    * @param x x 坐标
+    * @param y y 坐标
     */      
   PointObstacle(double x, double y) : Obstacle(), pos_(Eigen::Vector2d(x,y))
   {}
 
 
-  // implements checkCollision() of the base class
+  // 实现基类的 checkCollision()
   virtual bool checkCollision(const Eigen::Vector2d& point, double min_dist) const
   {
       return getMinimumDistance(point) < min_dist;
   }
   
   
-  // implements checkLineIntersection() of the base class
+  // 实现基类的 checkLineIntersection()
   virtual bool checkLineIntersection(const Eigen::Vector2d& line_start, const Eigen::Vector2d& line_end, double min_dist=0) const
   {   
-      // Distance Line - Circle
-      // refer to http://www.spieleprogrammierer.de/wiki/2D-Kollisionserkennung#Kollision_Kreis-Strecke
+      // 距离线 - 圆
+      // 参考 http://www.spieleprogrammierer.de/wiki/2D-Kollisionserkennung#Kollision_Kreis-Strecke
       Eigen::Vector2d a = line_end-line_start; // not normalized!  a=y-x
       Eigen::Vector2d b = pos_-line_start; // b=m-x
       
-      // Now find nearest point to circle v=x+a*t with t=a*b/(a*a) and bound to 0<=t<=1
+      // 现在找到离圆最近的点 v=x+a*t，t=a*b/(a*a) 并绑定到 0<=t<=1
       double t = a.dot(b)/a.dot(a);
       if (t<0) t=0; // bound t (since a is not normalized, t can be scaled between 0 and 1 to parametrize the line
       else if (t>1) t=1;
       Eigen::Vector2d nearest_point = line_start + a*t;
       
-      // check collision
+      // 检查碰撞
       return checkCollision(nearest_point, min_dist);
   }
 
   
-  // implements getMinimumDistance() of the base class
+  // 实现基类的getMinimumDistance()
   virtual double getMinimumDistance(const Eigen::Vector2d& position) const
   {
     return (position-pos_).norm();
   }
   
-  // implements getMinimumDistance() of the base class
+  // 实现基类的getMinimumDistance()
   virtual double getMinimumDistance(const Eigen::Vector2d& line_start, const Eigen::Vector2d& line_end) const
   {
     return distance_point_to_segment_2d(pos_, line_start, line_end);
   }
   
-  // implements getMinimumDistance() of the base class
+  // 实现基类的getMinimumDistance()
   virtual double getMinimumDistance(const Point2dContainer& polygon) const
   {
     return distance_point_to_polygon_2d(pos_, polygon);
   }
   
-  // implements getMinimumDistanceVec() of the base class
+  // 实现基类的getMinimumDistanceVec()
   virtual Eigen::Vector2d getClosestPoint(const Eigen::Vector2d& position) const
   {
     return pos_;
   }
   
-  // implements getMinimumSpatioTemporalDistance() of the base class
+  // 实现基类的getMinimumSpatioTemporalDistance()
   virtual double getMinimumSpatioTemporalDistance(const Eigen::Vector2d& position, double t) const
   {
     return (pos_ + t*centroid_velocity_ - position).norm();
   }
 
-  // implements getMinimumSpatioTemporalDistance() of the base class
+  // 实现基类的getMinimumSpatioTemporalDistance()
   virtual double getMinimumSpatioTemporalDistance(const Eigen::Vector2d& line_start, const Eigen::Vector2d& line_end, double t) const
   {
     return distance_point_to_segment_2d(pos_ + t*centroid_velocity_, line_start, line_end);
   }
 
-  // implements getMinimumSpatioTemporalDistance() of the base class
+  // 实现基类的getMinimumSpatioTemporalDistance()
   virtual double getMinimumSpatioTemporalDistance(const Point2dContainer& polygon, double t) const
   {
     return distance_point_to_polygon_2d(pos_ + t*centroid_velocity_, polygon);
   }
 
-  // implements predictCentroidConstantVelocity() of the base class
+  // 实现基类的 predictCentroidConstantVelocity()
   virtual void predictCentroidConstantVelocity(double t, Eigen::Ref<Eigen::Vector2d> position) const
   {
     position = pos_ + t*centroid_velocity_;
   }
 
-  // implements getCentroid() of the base class
+  // 实现基类的getCentroid()
   virtual const Eigen::Vector2d& getCentroid() const
   {
     return pos_;
   }
   
-  // implements getCentroidCplx() of the base class
+  // 实现基类的getCentroidCplx()
   virtual std::complex<double> getCentroidCplx() const
   {
     return std::complex<double>(pos_[0],pos_[1]);
   }
   
-  // Accessor methods
-  const Eigen::Vector2d& position() const {return pos_;} //!< Return the current position of the obstacle (read-only)
-  Eigen::Vector2d& position() {return pos_;} //!< Return the current position of the obstacle
-  double& x() {return pos_.coeffRef(0);} //!< Return the current x-coordinate of the obstacle
-  const double& x() const {return pos_.coeffRef(0);} //!< Return the current y-coordinate of the obstacle (read-only)
-  double& y() {return pos_.coeffRef(1);} //!< Return the current x-coordinate of the obstacle
-  const double& y() const {return pos_.coeffRef(1);} //!< Return the current y-coordinate of the obstacle (read-only)
+  // 访问器方法
+  const Eigen::Vector2d& position() const {return pos_;} //!< 返回障碍物的当前位置（只读）
+  Eigen::Vector2d& position() {return pos_;} //!< 返回障碍物的当前位置
+  double& x() {return pos_.coeffRef(0);} //!< 返回障碍物的当前 x 坐标
+  const double& x() const {return pos_.coeffRef(0);} //!< 返回障碍物的当前 y 坐标（只读）
+  double& y() {return pos_.coeffRef(1);} //!< 返回障碍物的当前 x 坐标
+  const double& y() const {return pos_.coeffRef(1);} //!< 返回障碍物的当前 y 坐标（只读）
       
-  // implements toPolygonMsg() of the base class
+  // 实现基类的 toPolygonMsg()
   virtual void toPolygonMsg(geometry_msgs::Polygon& polygon)
   {
     polygon.points.resize(1);
@@ -433,7 +433,7 @@ public:
       
 protected:
   
-  Eigen::Vector2d pos_; //!< Store the position of the PointObstacle
+  Eigen::Vector2d pos_; //!< 存储 PointObstacle 的位置
   
   	
 public:	
@@ -442,22 +442,22 @@ public:
 
 /**
  * @class CircularObstacle
- * @brief Implements a 2D circular obstacle (point obstacle plus radius)
+ * @brief 实现一个 2D 圆形障碍物（点障碍物加半径）
  */
 class CircularObstacle : public Obstacle
 {
 public:
 
   /**
-    * @brief Default constructor of the circular obstacle class
+    * @brief 圆形障碍物类的默认构造函数
     */
   CircularObstacle() : Obstacle(), pos_(Eigen::Vector2d::Zero())
   {}
 
   /**
-    * @brief Construct CircularObstacle using a 2d center position vector and radius
-    * @param position 2d position that defines the current obstacle position
-    * @param radius radius of the obstacle
+    * @brief 使用二维中心位置向量和半径构造 CircularObstacle
+    * @param position 2d 定义当前障碍物位置的 2d 位置
+    * @param radius 障碍物的半径
     */
   CircularObstacle(const Eigen::Ref< const Eigen::Vector2d>& position, double radius) : Obstacle(), pos_(position), radius_(radius)
   {}
