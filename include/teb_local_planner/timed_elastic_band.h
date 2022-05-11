@@ -60,77 +60,77 @@
 namespace teb_local_planner
 {
 
-//! Container of poses that represent the spatial part of the trajectory
+//! 表示轨迹空间部分的姿势容器
 typedef std::vector<VertexPose*> PoseSequence;
-//! Container of time differences that define the temporal of the trajectory
+//! 定义轨迹时间的时差容器
 typedef std::vector<VertexTimeDiff*> TimeDiffSequence;
 
 
 /**
  * @class TimedElasticBand
- * @brief Class that defines a trajectory modeled as an elastic band with augmented tempoarl information.
+ * @brief 类，它定义了一个轨迹，该轨迹被建模为具有增强时间信息的弹性带。
  * 
- * All trajectory related methods (initialization, modifying, ...) are implemented inside this class. \n
+ * 所有轨迹相关的方法（初始化，修改，...）都在这个类中实现。 \n
  * Let \f$ Q = \lbrace \mathbf{s}_i \rbrace_{i=0...n},\ n \in \mathbb{N} \f$ be a sequence of poses, \n
  * in which \f$ \mathbf{s}_i = [x_i, y_i, \beta_i]^T \in \mathbb{R}^2 \times S^1 \f$ denotes a single pose of the robot. \n
- * The Timed Elastic Band (TEB) augments this sequence of poses by incorporating time intervals between
+ * 定时弹力带 (TEB) 通过结合时间间隔来增强这个姿势序列
  * two consecutive poses, resuting in a sequence of \c n-1 time intervals \f$ \Delta T_i \f$: \n
  * \f$ \tau = \lbrace \Delta T_i \rbrace_{i=0...n-1} \f$. \n
- * Each time interval (time diff) denotes the time that the robot requires to transit from the current configuration to the next configuration.
- * The tuple of both sequences defines the underlying trajectory.
+ * 每个时间间隔（time diff）表示机器人从当前配置过渡到下一个配置所需的时间。
+ * 两个序列的元组定义了基础轨迹。
  * 
- * Poses and time differences are wrapped into a g2o::Vertex class in order to enable the efficient optimization in TebOptimalPlanner. \n
- * TebOptimalPlanner utilizes this Timed_Elastic_band class for representing an optimizable trajectory.
+ * 姿势和时间差异被包装到 g2o::Vertex 类中，以便在 TebOptimalPlanner 中实现高效优化。 \n
+ * TebOptimalPlanner 利用这个 Timed_Elastic_band 类来表示可优化的轨迹。
  * 
- * @todo Move decision if the start or goal state should be marked as fixed or unfixed for the optimization to the TebOptimalPlanner class.
+ * @todo 移动决定是否应将开始或目标状态标记为固定或不固定以优化到 TebOptimalPlanner 类。
  */
 class TimedElasticBand
 {
 public:
 
   /**
-   * @brief Construct the class
+   * @brief 构造类
    */
   TimedElasticBand();
   
   /**
-   * @brief Destruct the class
+   * @brief 销毁类
    */
   virtual ~TimedElasticBand();
 
   
   
-  /** @name Access pose and timediff sequences */
+  /** @name 访问姿势和时间差异序列 */
   //@{
   
   /**
-   * @brief Access the complete pose sequence 
-   * @return reference to the pose sequence
+   * @brief 访问完整的姿势序列 
+   * @return 对姿势序列的引用
    */
   PoseSequence& poses() {return pose_vec_;};
   
    /**
-   * @brief Access the complete pose sequence (read-only)
-   * @return const reference to the pose sequence
+   * @brief 访问完整的姿势序列（只读）
+   * @return 对姿势序列的常量引用
    */
   const PoseSequence& poses() const {return pose_vec_;};
   
   /**
-   * @brief Access the complete timediff sequence 
-   * @return reference to the dimediff sequence
+   * @brief 访问完整的 timediff 序列 
+   * @return 对 dimediff 序列的引用
    */
   TimeDiffSequence& timediffs() {return timediff_vec_;};
   
   /**
-   * @brief Access the complete timediff sequence 
-   * @return reference to the dimediff sequence
+   * @brief 访问完整的 timediff 序列 
+   * @return 对 dimediff 序列的引用
    */
   const TimeDiffSequence& timediffs() const {return timediff_vec_;};  
   
   /**
-   * @brief Access the time difference at pos \c index of the time sequence
-   * @param index element position inside the internal TimeDiffSequence
-   * @return reference to the time difference at pos \c index
+   * @brief 获取时间序列的 pos \c 索引处的时差
+   * @param index 内部 TimeDiffSequence 内的索引元素位置
+   * @return 对 pos \c 索引处时差的引用
    */
   double& TimeDiff(int index)
   {
@@ -139,9 +139,9 @@ public:
   }
   
   /**
-   * @brief Access the time difference at pos \c index of the time sequence (read-only)
-   * @param index element position inside the internal TimeDiffSequence
-   * @return const reference to the time difference at pos \c index
+   * @brief 访问时间序列的 pos \c 索引处的时差（只读）
+   * @param index 内部 TimeDiffSequence 内的索引元素位置
+   * @return const 常量引用 pos \c 索引处的时差
    */
   const double& TimeDiff(int index) const
   {
@@ -150,9 +150,9 @@ public:
   }
   
   /**
-   * @brief Access the pose at pos \c index of the pose sequence
-   * @param index element position inside the internal PoseSequence
-   * @return reference to the pose at pos \c index
+   * @brief 在姿势序列的 pos \c 索引处访问姿势
+   * @param index 内部 PoseSequence 内的索引元素位置
+   * @return 对 pos \c 索引处姿势的引用
    */
   PoseSE2& Pose(int index) 
   {
@@ -161,9 +161,9 @@ public:
   }
   
   /**
-   * @brief Access the pose at pos \c index of the pose sequence (read-only)
-   * @param index element position inside the internal PoseSequence
-   * @return const reference to the pose at pos \c index
+   * @brief 在姿势序列的 pos \c 索引处访问姿势（只读）
+   * @param index 内部 PoseSequence 内的索引元素位置
+   * @return 对 pos \c 索引处姿势的 const 引用
    */
   const PoseSE2& Pose(int index) const 
   {
@@ -172,29 +172,29 @@ public:
   }
   
   /**
-   * @brief Access the last PoseSE2 in the pose sequence
+   * @brief 访问姿势序列中的最后一个 PoseSE2
    */
   PoseSE2& BackPose() {return pose_vec_.back()->pose(); }
   
   /**
-   * @brief Access the last PoseSE2 in the pose sequence (read-only) 
+   * @brief 访问姿势序列中的最后一个 PoseSE2（只读） 
    */
   const PoseSE2& BackPose() const {return pose_vec_.back()->pose();}
   
   /**
-   * @brief Access the last TimeDiff in the time diff sequence
+   * @brief 访问时间差异序列中的最后一个 TimeDiff
    */ 
   double& BackTimeDiff() {return timediff_vec_.back()->dt(); }
   
   /**
-   * @brief Access the last TimeDiff in the time diff sequence (read-only)
+   * @brief 访问时间差异序列中的最后一个 TimeDiff（只读）
    */  
   const double& BackTimeDiff() const {return timediff_vec_.back()->dt(); }
   
   /**
-   * @brief Access the vertex of a pose at pos \c index for optimization purposes
-   * @param index element position inside the internal PoseSequence
-   * @return Weak raw pointer to the pose vertex at pos \c index
+   * @brief 在 pos \c 索引处访问姿势的顶点以进行优化
+   * @param index 内部 PoseSequence 内的索引元素位置
+   * @return 指向 pos \c 索引处的位姿顶点的弱原始指针
    */ 
   VertexPose* PoseVertex(int index) 
   {
@@ -203,9 +203,9 @@ public:
   }
   
   /**
-   * @brief Access the vertex of a time difference at pos \c index for optimization purposes
-   * @param index element position inside the internal TimeDiffSequence
-   * @return Weak raw pointer to the timediff vertex at pos \c index
+   * @brief 在 pos \c 索引处访问时间差的顶点以进行优化
+   * @param index 内部 TimeDiffSequence 内的索引元素位置
+   * @return 指向 pos \c 索引处 timediff 顶点的弱原始指针
    */  
   VertexTimeDiff* TimeDiffVertex(int index) 
   {
@@ -217,192 +217,192 @@ public:
   
   
   
-  /** @name Append new elements to the pose and timediff sequences */
+  /** @name 将新元素附加到姿势和时间差异序列 */
   //@{
   
   /**
-   * @brief Append a new pose vertex to the back of the pose sequence 
-   * @param pose PoseSE2 to push back on the internal PoseSequence
-   * @param fixed Mark the pose to be fixed or unfixed during trajectory optimization (important for the TebOptimalPlanner)
+   * @brief 在姿势序列的后面附加一个新的姿势顶点 
+   * @param pose 姿势 PoseSE2 推回内部 PoseSequence
+   * @param fixed 在轨迹优化期间将姿势标记为固定或不固定（对 TebOptimalPlanner 很重要）
    */
   void addPose(const PoseSE2& pose, bool fixed=false);  
 
   /**
-   * @brief Append a new pose vertex to the back of the pose sequence 
-   * @param position 2D vector representing the position part
-   * @param theta yaw angle representing the orientation part
-   * @param fixed Mark the pose to be fixed or unfixed during trajectory optimization (important for the TebOptimalPlanner)
+   * @brief 在姿势序列的后面附加一个新的姿势顶点 
+   * @param position 表示位置部分的二维向量
+   * @param theta 表示方向部分的偏航角
+   * @param fixed 在轨迹优化期间将姿势标记为固定或不固定（对 TebOptimalPlanner 很重要）
    */
   void addPose(const Eigen::Ref<const Eigen::Vector2d>& position, double theta, bool fixed=false);
   
   /**
-   * @brief Append a new pose vertex to the back of the pose sequence 
-   * @param x x-coordinate of the position part
-   * @param y y-coordinate of the position part
-   * @param theta yaw angle representing the orientation part
-   * @param fixed Mark the pose to be fixed or unfixed during trajectory optimization (important for the TebOptimalPlanner)
+   * @brief 在姿势序列的后面附加一个新的姿势顶点
+   * @param x 位置部分的x坐标
+   * @param y 位置部分的y坐标
+   * @param theta 表示方向部分的偏航角
+   * @param fixed 在轨迹优化期间将姿势标记为固定或不固定（对 TebOptimalPlanner 很重要）
    */
   void addPose(double x, double y, double theta, bool fixed=false);
   
   /**
-   * @brief Append a new time difference vertex to the back of the time diff sequence 
-   * @param dt time difference value to push back on the internal TimeDiffSequence
-   * @param fixed Mark the pose to be fixed or unfixed during trajectory optimization (important for the TebOptimalPlanner)
+   * @brief 将一个新的时差顶点附加到时差序列的后面 
+   * @param dt 时间差值推回内部 TimeDiffSequence
+   * @param fixed 在轨迹优化期间将姿势标记为固定或不固定（对 TebOptimalPlanner 很重要）
    */
   void addTimeDiff(double dt, bool fixed=false);
   
   /**
-   * @brief Append a (pose, timediff) vertex pair to the end of the current trajectory (pose and timediff sequences)
-   * @param pose PoseSE2 to push back on the internal PoseSequence
-   * @param dt time difference value to push back on the internal TimeDiffSequence
-   * @warning 	Since the timediff is defined to connect two consecutive poses, this call is only 
-   * 		allowed if there exist already n poses and n-1 timediffs in the sequences (n=1,2,...):
-   * 		therefore add a single pose using addPose() first!
+   * @brief 将一个 (pose, timediff) 顶点对附加到当前轨迹的末尾（pose 和 timediff 序列）
+   * @param pose 姿势 PoseSE2 推回内部 PoseSequence
+   * @param dt 时间差值推回内部 TimeDiffSequence
+   * @warning 	由于 timediff 被定义为连接两个连续的姿势，
+   *            因此仅当序列中已经存在 n 个姿势和 n-1 个 timediffs (n=1,2,...) 时才允许此调用:
+   * 		因此，首先使用 addPose() 添加单个姿势！
    */
   void addPoseAndTimeDiff(const PoseSE2& pose, double dt);
   
   /**
-   * @brief Append a (pose, timediff) vertex pair to the end of the current trajectory (pose and timediff sequences)
-   * @param position 2D vector representing the position part
-   * @param theta yaw angle representing the orientation part
-   * @param dt time difference value to push back on the internal TimeDiffSequence
-   * @warning see addPoseAndTimeDiff(const PoseSE2& pose, double dt)
+   * @brief 将一个 (pose, timediff) 顶点对附加到当前轨迹的末尾（pose 和 timediff 序列）
+   * @param position 表示位置部分的二维向量
+   * @param theta 表示方向部分的偏航角
+   * @param dt 时间差值推回内部 TimeDiffSequence
+   * @warning 见 addPoseAndTimeDiff(const PoseSE2&pose, double dt)
    */
   void addPoseAndTimeDiff(const Eigen::Ref<const Eigen::Vector2d>& position, double theta, double dt);
   
   /**
-   * @brief Append a (pose, timediff) vertex pair to the end of the current trajectory (pose and timediff sequences)
-   * @param x x-coordinate of the position part
-   * @param y y-coordinate of the position part
-   * @param theta yaw angle representing the orientation part
-   * @param dt time difference value to push back on the internal TimeDiffSequence
-   * @warning see addPoseAndTimeDiff(const PoseSE2& pose, double dt)
+   * @brief 将一个 (pose, timediff) 顶点对附加到当前轨迹的末尾（pose 和 timediff 序列）
+   * @param x 位置部分的x坐标
+   * @param y 位置部分的y坐标
+   * @param theta 表示方向部分的偏航角
+   * @param dt 时间差值推回内部 TimeDiffSequence
+   * @warning 见 addPoseAndTimeDiff(const PoseSE2&pose, double dt)
    */
   void addPoseAndTimeDiff(double x, double y, double theta, double dt);
   
   //@}
   
 
-  /** @name Insert new elements and remove elements of the pose and timediff sequences */
+  /** @name 插入新元素并删除姿势和时间差异序列的元素 */
   //@{
 
   /**
-   * @brief Insert a new pose vertex at pos. \c index to the pose sequence
-   * @param index element position inside the internal PoseSequence
-   * @param pose PoseSE2 element to insert into the internal PoseSequence
+   * @brief 在pos.的索引处的位姿序列插入一个新的姿势顶点
+   * @param 内部 PoseSequence 内的索引元素位置
+   * @param pose 姿势PoseSE2 元素插入到内部 PoseSequence
    */
   void insertPose(int index, const PoseSE2& pose);
   
   /**
-   * @brief Insert a new pose vertex at pos. \c index to the pose sequence
-   * @param index element position inside the internal PoseSequence
-   * @param position 2D vector representing the position part
-   * @param theta yaw-angle representing the orientation part
+   * @brief 在pos.的索引处的位姿序列插入一个新的姿势顶点
+   * @param index 内部 PoseSequence 内的索引元素位置
+   * @param position 表示位置部分的二维向量
+   * @param theta 表示方向部分的yaw-angle
    */
   void insertPose(int index, const Eigen::Ref<const Eigen::Vector2d>& position, double theta);
   
   /**
-   * @brief Insert a new pose vertex at pos. \c index to the pose sequence
-   * @param index element position inside the internal PoseSequence
-   * @param x x-coordinate of the position part
-   * @param y y-coordinate of the position part
-   * @param theta yaw-angle representing the orientation part
+   * @brief 在pos.的索引处的位姿序列插入一个新的姿势顶点
+   * @param index 内部 PoseSequence 内的索引元素位置
+   * @param x 位置部分的x坐标
+   * @param y 位置部分的y坐标
+   * @param theta 表示方向部分的yaw-angle
    */
   void insertPose(int index, double x, double y, double theta);
   
   /**
-   * @brief Insert a new timediff vertex at pos. \c index to the timediff sequence
-   * @param index element position inside the internal TimeDiffSequence
-   * @param dt timediff value
+   * @brief 在pos.的索引处的时间差异序列插入一个新的时间差异顶点
+   * @param 内部 TimeDiffSequence 内的索引元素位置
+   * @param dt 时间差异值
    */   
   void insertTimeDiff(int index, double dt);
     
   /**
-   * @brief Delete pose at pos. \c index in the pose sequence
-   * @param index element position inside the internal PoseSequence
+   * @brief 在pos.的索引处的位姿序列删除一个新的姿势顶点
+   * @param index 内部 PoseSequence 内的索引元素位置
    */
   void deletePose(int index);
   
   /**
-   * @brief Delete multiple (\c number) poses starting at pos. \c index in the pose sequence
-   * @param index first element position inside the internal PoseSequence
-   * @param number number of elements that should be deleted
+   * @brief 从位姿序列pos.索引处开始删除多个（number）位姿
+   * @param index 内部 PoseSequence 内的第一个元素位置
+   * @param number 需要删除的元素个数
    */
   void deletePoses(int index, int number);
 
   /**
-   * @brief Delete pose at pos. \c index in the timediff sequence
-   * @param index element position inside the internal TimeDiffSequence
+   * @brief 删除时间差异序列中索引为pos.的位姿
+   * @param index 内部 TimeDiffSequence 内的索引元素位置
    */
   void deleteTimeDiff(int index);
 	
-  /**
-   * @brief Delete multiple (\c number) time differences starting at pos. \c index in the timediff sequence
-   * @param index first element position inside the internal TimeDiffSequence
-   * @param number number of elements that should be deleted
+  /** 
+   * @brief 删除在时间差异序列中索引为pos.开始的多个（number）时间间隔
+   * @param index 第一个元素在内部 TimeDiffSequence 中的位置
+   * @param number 需要删除的元素个数
    */
   void deleteTimeDiffs(int index, int number);
   
   //@}
   
   
-  /** @name Init the trajectory */
+  /** @name 初始化轨迹 */
   //@{
   
   /**
-   * @brief Initialize a trajectory between a given start and goal pose.
+   * @brief 初始化给定起始姿势和目标姿势之间的轨迹。
    * 
-   * The implemented algorithm subsamples the straight line between
-   * start and goal using a given discretiziation width. \n
-   * The discretization width can be defined in the euclidean space
-   * using the \c diststep parameter. Each time difference between two consecutive
-   * poses is initialized to \c timestep. \n
-   * If the \c diststep is chosen to be zero, 
-   * the resulting trajectory contains the start and goal pose only.
-   * @param start PoseSE2 defining the start of the trajectory
-   * @param goal PoseSE2 defining the goal of the trajectory (final pose)
-   * @param diststep euclidean distance between two consecutive poses (if 0, no intermediate samples are inserted despite min_samples)
-   * @param max_vel_x maximum translational velocity used for determining time differences
-   * @param min_samples Minimum number of samples that should be initialized at least
-   * @param guess_backwards_motion Allow the initialization of backwards oriented trajectories if the goal heading is pointing behind the robot
-   * @return true if everything was fine, false otherwise
+   * 实现的算法使用给定的离散化宽度对起点和目标之间的直线进行二次采样。
+   *  
+   * 可以使用 diststep 参数在欧几里得空间中定义离散化宽度。
+   * 两个连续姿势之间的每个时间差都被初始化为时间步长。
+   *  
+   * 如果 diststep 选择为零，则生成的轨迹仅包含起始姿势和目标姿势。 
+   *  
+   * @param start PoseSE2 定义轨迹的起点
+   * @param goal PoseSE2 定义轨迹的目标（最终姿势）
+   * @param diststep 两个连续姿势之间的欧几里得距离（如果为 0，尽管 min_samples 没有插入中间样本）
+   * @param max_vel_x 用于确定时间差的最大平移速度
+   * @param min_samples 至少应该初始化的最小样本数
+   * @param guess_backwards_motion 如果目标航向指向机器人后面，则允许初始化向后的轨迹
+   * @return 如果一切正常，则返回 true，否则返回 false
    */
   bool initTrajectoryToGoal(const PoseSE2& start, const PoseSE2& goal, double diststep=0, double max_vel_x=0.5, int min_samples = 3, bool guess_backwards_motion = false);
   
   
   /**
-   * @brief Initialize a trajectory from a generic 2D reference path.
+   * @brief 从通用 2D 参考路径初始化轨迹。
    * 
-   * The temporal information is determined using a given maximum velocity 
-   * (2D vector containing the translational and angular velocity). \n
-   * A constant velocity profile is implemented. \n
-   * A possible maximum acceleration is considered if \c max_acceleration param is provided.
+   * 使用给定的最大速度（包含平移和角速度的 2D 矢量）确定时间信息。 
+   *  
+   * 实现恒定速度曲线。 \n
+   * 如果提供了 max_acceleration 参数，则考虑可能的最大加速度。
    * 
-   * Since the orientation is not included in the reference path, it can be provided seperately
-   * (e.g. from the robot pose and robot goal). \n
-   * Otherwise the goal heading will be used as start and goal orientation. \n
-   * The orientation along the trajectory will be determined using the connection vector
-   * between two consecutive positions of the reference path.
+   * 由于方向不包含在参考路径中，因此可以单独提供（例如，从机器人姿势和机器人目标）。
+   *  
+   * 否则，目标航向将用作起点和目标方向。 \n
+   * 沿轨迹的方向将使用参考路径的两个连续位置之间的连接向量来确定。
+   *  
    * 
-   * The reference path is provided using a start and end iterator to a container class.
-   * You must provide a unary function that accepts the dereferenced iterator and returns
-   * a copy or (const) reference to an Eigen::Vector2d type containing the 2d position.
+   * 使用容器类的开始和结束迭代器提供引用路径。
+   * 您必须提供一个接受取消引用的迭代器并返回对包含 2d 位置的 Eigen::Vector2d 类型的副本或 (const) 引用的一元函数。
+   *  
    * 
-   * @param path_start start iterator of a generic 2d path
-   * @param path_end end iterator of a generic 2d path
-   * @param fun_position unary function that returns the Eigen::Vector2d object
-   * @param max_vel_x maximum translational velocity used for determining time differences
-   * @param max_vel_theta maximum angular velocity used for determining time differences
-   * @param max_acc_x specify to satisfy a maxmimum transl. acceleration and decceleration (optional)
-   * @param max_acc_theta specify to satisfy a maxmimum angular acceleration and decceleration (optional)
-   * @param start_orientation Orientation of the first pose of the trajectory (optional, otherwise use goal heading)
-   * @param goal_orientation Orientation of the last pose of the trajectory (optional, otherwise use goal heading)
-   * @param min_samples Minimum number of samples that should be initialized at least
-   * @param guess_backwards_motion Allow the initialization of backwards oriented trajectories if the goal heading is pointing behind the robot
-   * @tparam BidirIter Bidirectional iterator type
-   * @tparam Fun unyary function that transforms the dereferenced iterator into an Eigen::Vector2d
-   * @return true if everything was fine, false otherwise
-   * @remarks Use \c boost::none to skip optional arguments.
+   * @param path_start 启动通用二维路径的迭代器
+   * @param path_end 通用二维路径的结束迭代器
+   * @param fun_position 一元函数，返回 Eigen::Vector2d 对象
+   * @param max_vel_x 用于确定时间差的最大平移速度
+   * @param max_vel_theta 用于确定时间差的最大角速度
+   * @param max_acc_x 指定满足最大转换。加速和减速（可选）
+   * @param max_acc_theta 指定满足最大角加速度和减速度（可选）
+   * @param start_orientation 轨迹第一个位姿的方向（可选，否则使用目标航向）
+   * @param goal_orientation 轨迹最后一个位姿的方向（可选，否则使用目标航向）
+   * @param min_samples 至少应该初始化的最小样本数
+   * @param guess_backwards_motion 如果目标航向指向机器人后面，则允许初始化向后的轨迹
+   * @tparam BidirIter 双向迭代器类型
+   * @tparam Fun 一元函数，将取消引用的迭代器转换为 Eigen::Vector2d
+   * @return 如果一切正常，则返回 true，否则返回 false
+   * @remarks 使用 boost::none 跳过可选参数
    */ 
   template<typename BidirIter, typename Fun>
   bool initTrajectoryToGoal(BidirIter path_start, BidirIter path_end, Fun fun_position, double max_vel_x, double max_vel_theta,
@@ -422,19 +422,19 @@ public:
   */
   
   /**
-   * @brief Initialize a trajectory from a reference pose sequence (positions and orientations).
+   * @brief 从参考姿势序列（位置和方向）初始化轨迹。
    *
-   * This method initializes the timed elastic band using a pose container
-   * (e.g. as local plan from the ros navigation stack). \n
-   * The initial time difference between two consecutive poses can be uniformly set
-   * via the argument \c dt.
-   * @param plan vector of geometry_msgs::PoseStamped
-   * @param max_vel_x maximum translational velocity used for determining time differences
-   * @param estimate_orient if \c true, calculate orientation using the straight line distance vector between consecutive poses
-   *                        (only copy start and goal orientation; recommended if no orientation data is available).
-   * @param min_samples Minimum number of samples that should be initialized at least
-   * @param guess_backwards_motion Allow the initialization of backwards oriented trajectories if the goal heading is pointing behind the robot (this parameter is used only if \c estimate_orient is enabled.
-   * @return true if everything was fine, false otherwise
+   * 此方法使用姿势容器（例如，作为 ros 导航堆栈中的本地计划）初始化定时松紧带。
+   *  
+   * 两个连续姿势之间的初始时间差可以通过参数 dt 统一设置。
+   * 
+   * @param plan 计划向量的 geometry_msgs::PoseStamped
+   * @param max_vel_x 用于确定时间差的最大平移速度
+   * @param estimate_orient 如果 \c 为真，则使用连续姿势之间的直线距离矢量计算方向
+   *                        （仅复制开始和目标方向；如果没有可用的方向数据，建议使用）。
+   * @param min_samples 至少应该初始化的最小样本数
+   * @param guess_backwards_motion 如果目标航向指向机器人后面，则允许初始化后向轨迹（此参数仅在启用 \cestimate_orient 时使用。
+   * @return 如果一切正常，则返回 true，否则返回 false
    */
   bool initTrajectoryToGoal(const std::vector<geometry_msgs::PoseStamped>& plan, double max_vel_x, bool estimate_orient=false, int min_samples = 3, bool guess_backwards_motion = false);
 
@@ -465,203 +465,204 @@ public:
   
   //@}
   
-  /** @name Update and modify the trajectory */
+  /** @name 更新和修改轨迹 */
   //@{
   
   
   /**
-   * @brief Hot-Start from an existing trajectory with updated start and goal poses.
+   * @brief Hot-Start 从具有更新的开始和目标姿势的现有轨迹开始。
    *
-   * This method updates a previously optimized trajectory with a new start and/or a new goal pose. \n
-   * The current simple implementation cuts of pieces of the trajectory that are already passed due to the new start. \n
-   * Afterwards the start and goal pose are replaced by the new ones. The resulting discontinuity will not be smoothed.
-   * The optimizer has to smooth the trajectory in TebOptimalPlanner. \n
+   * 此方法使用新的开始和/或新的目标姿势更新先前优化的轨迹。\n
+   * 当前的简单实现切割由于新开始而已经通过的轨迹片段。\n
+   * 之后，开始姿势和目标姿势被新姿势取代。由此产生的不连续性将不会被平滑。
+   * 优化器必须在 TebOptimalPlanner 中平滑轨迹。\n
    * 
-   * @todo Smooth the trajectory here and test the performance improvement of the optimization.
-   * @todo Implement a updateAndPruneTEB based on a new reference path / pose sequence.
+   * @todo 在这里平滑轨迹，测试优化的性能提升。
+   * @todo 基于新的参考路径/姿势序列实现 updateAndPruneTEB。
    * 
-   * @param new_start New start pose (optional)
-   * @param new_goal New goal pose (optional)
-   * @param min_samples Specify the minimum number of samples that should at least remain in the trajectory
+   * @param new_start 新开始姿势（可选）
+   * @param new_goal 新目标姿势（可选）
+   * @param min_samples 指定至少应保留在轨迹中的最小样本数
    */  
   void updateAndPruneTEB(boost::optional<const PoseSE2&> new_start, boost::optional<const PoseSE2&> new_goal, int min_samples = 3);
   
   
   /**
-   * @brief Resize the trajectory by removing or inserting a (pose,dt) pair depending on a reference temporal resolution.
+   * @brief 根据参考时间分辨率，通过移除或插入 (pose,dt) 对来调整轨迹的大小。
    *
-   * Resizing the trajectory is helpful e.g. for the following scenarios:
+   * 调整轨迹的大小对于以下情况很有帮助：
    * 
-   * 	- Obstacles requires the teb to be extended in order to 
-   * 	  satisfy the given discritization width (plan resolution)
-   *      and to avoid undesirable behavior due to a large/small discretization step widths \f$ \Delta T_i \f$
-   * 	  After clearance of obstacles, the teb should (re-) contract to its (time-)optimal version.
-   *    - If the distance to the goal state is getting smaller,
-   *      dt is decreasing as well. This leads to a heavily
-   *      fine-grained discretization in combination with many
-   *      discrete poses. Thus, the computation time will
-   *      be/remain high and in addition numerical instabilities
-   *      can appear (e.g. due to the division by a small \f$ \Delta T_i \f$).
+   * 	- 障碍需要扩展 teb 以满足给定的离散化宽度（平面分辨率）
+   * 	  并避免由于大/小离散化步宽 \f$ \Delta T_i \f$ 而导致的不良行为。 
+   *       
+   * 	  清除障碍后，teb 应该（重新）收缩到其（时间）最佳版本。
+   *    - 如果到目标状态的距离越来越小，则 dt 也在减小。
+   *      这导致与许多离散姿势相结合的高度细粒度的离散化。
+   *       
+   *      因此，计算时间将会/保持很高，
+   *      此外还会出现数值不稳定性（例如，由于除以一个小的 \f$ \Delta T_i \f$）。
+   *       
    *
-   * The implemented strategy checks all timediffs \f$ \Delta T_i \f$ and
+   * 实施的策略检查所有 timediffs \f$ \Delta T_i \f$ 和
    * 
-   * 	- inserts a new sample if \f$ \Delta T_i > \Delta T_{ref} + \Delta T_{hyst} \f$
-   *    - removes a sample if \f$ \Delta T_i < \Delta T_{ref} - \Delta T_{hyst} \f$
+   * 	- 如果 \f$ \Delta T_i > \Delta T_{ref} + \Delta T_{hyst} \f$，则插入一个新样本
+   *    - 如果 \f$ \Delta T_i < \Delta T_{ref} - \Delta T_{hyst} \f$ 则删除样本
    * 
-   * Each call only one new sample (pose-dt-pair) is inserted or removed.
-   * @param dt_ref reference temporal resolution
-   * @param dt_hysteresis hysteresis to avoid oscillations
-   * @param min_samples minimum number of samples that should be remain in the trajectory after resizing
-   * @param max_samples maximum number of samples that should not be exceeded during resizing
-   * @param fast_mode if true, the trajectory is iterated once to insert or erase points; if false the trajectory
-   *                  is repeatedly iterated until no poses are added or removed anymore
+   * 每次调用仅插入或删除一个新样本（pose-dt-pair）。
+   * @param dt_ref 参考时间分辨率
+   * @param dt_hysteresis 滞后以避免振荡
+   * @param min_samples 调整大小后应保留在轨迹中的最小样本数
+   * @param max_samples 调整大小时不应超过的最大样本数
+   * @param fast_mode 如果为真，则迭代轨迹一次以插入或删除点； 如果为假，则重复迭代轨迹，直到不再添加或删除任何姿势
+   *                   
    */    
   void autoResize(double dt_ref, double dt_hysteresis, int min_samples = 3, int max_samples=1000, bool fast_mode=false);
 
   /**
-   * @brief Set a pose vertex at pos \c index of the pose sequence to be fixed or unfixed during optimization.
-   * @param index index to the pose vertex
-   * @param status if \c true, the vertex will be fixed, otherwise unfixed
+   * @brief 在优化期间将姿势序列的 pos \c 索引处的姿势顶点设置为固定或不固定。
+   * @param index 姿态顶点的索引
+   * @param status 如果\c为真，顶点将被固定，否则不固定
    */
   void setPoseVertexFixed(int index, bool status);
   
   /**
-   * @brief Set a timediff vertex at pos \c index of the timediff sequence to be fixed or unfixed during optimization.
-   * @param index index to the timediff vertex
-   * @param status if \c true, the vertex will be fixed, otherwise unfixed
+   * @brief 在优化期间将 timediff 序列的 pos 索引处的 timediff 顶点设置为固定或不固定。
+   * @param index 到 timediff 顶点的索引
+   * @param status 如果\c为真，顶点将被固定，否则不固定
    */
   void setTimeDiffVertexFixed(int index, bool status);
   
   /**
-   * @brief clear all poses and timediffs from the trajectory.
-   * The pose and timediff sequences will be empty and isInit() will return \c false
+   * @brief 清除轨迹中的所有姿势和时间差异。
+   * 姿势和时间差异序列将为空并且 isInit() 将返回 \c false
    */
   void clearTimedElasticBand();
   
   //@}
   
   
-  /** @name Utility and status methods */
+  /** @name 实用程序和状态方法 */
   //@{
   
   /**
-   * @brief Find the closest point on the trajectory w.r.t. to a provided reference point.
+   * @brief 在轨迹上找到离提供的参考点最近的点。
    * 
-   * This function can be useful to find the part of a trajectory that is close to an obstacle.
+   * 此功能可用于查找靠近障碍物的轨迹部分。
    * 
-   * @todo implement a more efficient version that first performs a coarse search.
-   * @todo implement a fast approximation that assumes only one local minima w.r.t to the distance:
-   *       Allows simple comparisons starting from the middle of the trajectory.
+   * @todo 实现一个更高效的版本，首先执行粗略搜索。
+   * @todo 实现一个快速近似，假设距离只有一个局部最小值：
+   *       允许从轨迹中间开始进行简单比较。
    * 
-   * @param ref_point reference point (2D position vector)
-   * @param[out] distance [optional] the resulting minimum distance
-   * @param begin_idx start search at this pose index
-   * @return Index to the closest pose in the pose sequence
+   * @param ref_point 参考点（二维位置向量）
+   * @param[out] distance [optional] 得到的最小距离
+   * @param begin_idx 在这个姿势索引处开始搜索
+   * @return 姿势序列中最近姿势的索引
    */
   int findClosestTrajectoryPose(const Eigen::Ref<const Eigen::Vector2d>& ref_point, double* distance = NULL, int begin_idx=0) const;
 
   /**
-   * @brief Find the closest point on the trajectory w.r.t. to a provided reference line.
+   * @brief 在轨迹上找到离提供的参考线最近的点。
    * 
-   * This function can be useful to find the part of a trajectory that is close to an (line) obstacle.
+   * 此功能可用于查找靠近（线）障碍物的轨迹部分。
    * 
-   * @todo implement a more efficient version that first performs a coarse search.
-   * @todo implement a fast approximation that assumes only one local minima w.r.t to the distance:
-   *       Allows simple comparisons starting from the middle of the trajectory.
+   * @todo 实现一个更高效的版本，首先执行粗略搜索。
+   * @todo 实现一个快速近似，假设距离只有一个局部最小值：
+   *       允许从轨迹中间开始进行简单比较。
    * 
-   * @param ref_line_start start of the reference line (2D position vector)
-	 * @param ref_line_end end of the reference line (2D position vector)
-   * @param[out] distance [optional] the resulting minimum distance
-   * @return Index to the closest pose in the pose sequence
+   * @param ref_line_start 参考线的起点（二维位置向量）
+	 * @param ref_line_end 参考线结束（二维位置向量）
+   * @param[out] distance [optional] 得到的最小距离
+   * @return 姿势序列中最近姿势的索引
    */
   int findClosestTrajectoryPose(const Eigen::Ref<const Eigen::Vector2d>& ref_line_start, const Eigen::Ref<const Eigen::Vector2d>& ref_line_end, double* distance = NULL) const;
 
   /**
-   * @brief Find the closest point on the trajectory w.r.t. to a provided reference polygon.
+   * @brief 在轨迹上找到与提供的参考多边形最近的点。
    * 
-   * This function can be useful to find the part of a trajectory that is close to an (polygon) obstacle.
+   * 此功能可用于查找靠近（多边形）障碍物的轨迹部分。
    * 
-   * @todo implement a more efficient version that first performs a coarse search.
-   * @todo implement a fast approximation that assumes only one local minima w.r.t to the distance:
-   *       Allows simple comparisons starting from the middle of the trajectory.
+   * @todo 实现一个更高效的版本，首先执行粗略搜索。
+   * @todo 实现一个快速近似，假设距离只有一个局部最小值：
+   *       允许从轨迹中间开始进行简单比较。
    * 
-   * @param vertices vertex container containing Eigen::Vector2d points (the last and first point are connected)
-   * @param[out] distance [optional] the resulting minimum distance
-   * @return Index to the closest pose in the pose sequence
+   * @param vertices 包含 Eigen::Vector2d 点的顶点容器（最后一个点和第一个点相连）
+   * @param[out] distance [optional] 得到的最小距离
+   * @return 姿势序列中最近姿势的索引
    */
   int findClosestTrajectoryPose(const Point2dContainer& vertices, double* distance = NULL) const;
 
   /**
-   * @brief Find the closest point on the trajectory w.r.t to a provided obstacle type
+   * @brief 在轨迹上找到与提供的障碍物类型最近的点
    * 
-   * This function can be useful to find the part of a trajectory that is close to an obstacle.
-   * The method is calculates appropriate distance metrics for point, line and polygon obstacles.
-   * For all unknown obstacles the centroid is used.
+   * 此功能可用于查找靠近障碍物的轨迹部分。
+   * 该方法是计算点、线和多边形障碍物的适当距离度量。
+   * 对于所有未知障碍，使用质心。
    *
-   * @param obstacle Subclass of the Obstacle base class
-   * @param[out] distance [optional] the resulting minimum distance
-   * @return Index to the closest pose in the pose sequence
+   * @param 障碍障碍基类的子类
+   * @param[out] distance [optional] 得到的最小距离
+   * @return 姿势序列中最近姿势的索引
    */
   int findClosestTrajectoryPose(const Obstacle& obstacle, double* distance = NULL) const;
   
   
   /**
-   * @brief Get the length of the internal pose sequence
+   * @brief 获取内部姿势序列的长度
    */
   int sizePoses() const {return (int)pose_vec_.size();};
   
   /**
-   * @brief Get the length of the internal timediff sequence
+   * @brief 获取内部 timediff 序列的长度
    */
   int sizeTimeDiffs() const {return (int)timediff_vec_.size();};
   
   /**
-   * @brief Check whether the trajectory is initialized (nonzero pose and timediff sequences)
+   * @brief 检查轨迹是否初始化（非零位姿和时间差序列）
    */
   bool isInit() const {return !timediff_vec_.empty() && !pose_vec_.empty();}
 
   /**
-   * @brief Calculate the total transition time (sum over all time intervals of the timediff sequence)
+   * @brief 计算总转换时间（timediff 序列的所有时间间隔的总和）
    */
   double getSumOfAllTimeDiffs() const;
   
   /**
-   * @brief Calculate the estimated transition time up to the pose denoted by index
-   * @param index Index of the pose up to which the transition times are summed up
-   * @return Estimated transition time up to pose index
+   * @brief 计算到由 index 表示的位姿的估计转换时间
+   * @param index 过渡时间总和的姿势索引
+   * @return 估计到姿势索引的过渡时间
    */
   double getSumOfTimeDiffsUpToIdx(int index) const;
 
   /**
-   * @brief Calculate the length (accumulated euclidean distance) of the trajectory
+   * @brief 计算轨迹的长度（累积欧式距离）
    */
   double getAccumulatedDistance() const;
   
   /**
-   * @brief Detect whether the trajectory contains detours.
+   * @brief 检测轨迹是否包含弯路。
    * 
-   * Two different cases forces the method to return \c true : \n
-   * 	1. The trajectory contain parts that increase the distance to the goal. \n
-   * 	   This is checked by comparing the orientations theta_i with the goal heading. \n
-   * 	   If the scalar product is below the \c threshold param, the method returns \c true.
-   * 	2. The trajectory consist of backwards motions at the beginning of the trajectory,
-   * 	   e.g. the second pose is behind the start pose w.r.t. to the same goal heading.
+   * 两种不同的情况强制方法返回 \c true :
+   * 	1. 轨迹包含增加目标距离的部分。
+   * 	   这是通过将方向 theta_i 与目标航向进行比较来检查的。
+   * 	   如果标量积低于 \c 阈值参数，则该方法返回 \c true。
+   * 	2. 轨迹由轨迹开始时的向后运动组成，
+   * 	   例如，第二个姿势在相同目标航向的起始姿势之后。
    * 
-   * Detours are not critical, but can be takein into account if multiple trajectory candidates are avaiable.
-   * @param threshold Threshold paramter for allowed orientation changes (below 0 -> greater than 90 deg)
-   * @return \c true if one of both cases mentioned above are satisfied, false otherwise
+   * 绕道并不重要，但如果有多个候选轨迹可用，则可以考虑。
+   * @param threshold 允许方向变化的阈值参数（低于 0 -> 大于 90 度）
+   * @return \c 如果满足上述两种情况之一，则返回 true，否则返回 false
    */
   bool detectDetoursBackwards(double threshold=0) const;
   
   /**
-   * @brief Check if all trajectory points are contained in a specific region
+   * @brief 检查是否所有轨迹点都包含在特定区域中
    * 
-   * The specific region is a circle around the current robot position (Pose(0)) with given radius \c radius.
-   * This method investigates a different radius for points behind the robot if \c max_dist_behind_robot >= 0.
-   * @param radius radius of the region with the robot position (Pose(0)) as center
-   * @param max_dist_behind_robot A separate radius for trajectory points behind the robot, activated if 0 or positive
-   * @param skip_poses If >0: the specified number of poses are skipped for the test, e.g. Pose(0), Pose(0+skip_poses+1), Pose(2*skip_poses+2), ... are tested.
-   * @return \c true, if all tested trajectory points are inside the specified region, \c false otherwise.
+   * 特定区域是围绕当前机器人位置 (Pose(0)) 的圆，给定半径 \c 半径。
+   * 如果 \c max_dist_behind_robot >= 0，此方法会调查机器人后面的点的不同半径。
+   * @param radius 以机器人位置 (Pose(0)) 为中心的区域半径
+   * @param max_dist_behind_robot 机器人后方轨迹点的单独半径，如果为 0 或正则激活
+   * @param skip_poses If >0: 指定数量的姿势被跳过进行测试，例如 
+   * Pose(0), Pose(0+skip_poses+1), Pose(2*skip_poses+2), ... 被测试。
+   * @return \c true，如果所有测试的轨迹点都在指定区域内，否则 \c false。
    */
   bool isTrajectoryInsideRegion(double radius, double max_dist_behind_robot=-1, int skip_poses=0);
   
