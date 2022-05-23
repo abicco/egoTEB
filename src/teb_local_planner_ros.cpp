@@ -792,16 +792,16 @@ bool TebLocalPlannerROS::transformGlobalPlan(const tf::TransformListener& tf, co
 
       transformed_plan.push_back(newer_pose);
       
-      // Return the index of the current goal point (inside the distance threshold)
+      // 返回当前目标点的索引（在限定距离范围内）
       if (current_goal_idx) *current_goal_idx = int(global_plan.size())-1;
     }
     else
     {
-      // Return the index of the current goal point (inside the distance threshold)
+      // 返回当前目标点的索引（在限定距离范围内）
       if (current_goal_idx) *current_goal_idx = i-1; // subtract 1, since i was increased once before leaving the loop
     }
     
-    // Return the transformation from the global plan to the global planning frame if desired
+    // 返回路径坐标系到全局坐标系的转换
     if (tf_plan_to_global) *tf_plan_to_global = plan_to_global_transform;
   }
   catch(tf::LookupException& ex)
@@ -834,7 +834,7 @@ double TebLocalPlannerROS::estimateLocalGoalOrientation(const std::vector<geomet
 {
   int n = (int)global_plan.size();
   
-  // check if we are near the global goal already
+  // 是否已经到了目标点附近
   if (current_goal_idx > n-moving_average_length-2)
   {
     if (current_goal_idx >= n-1) // we've exactly reached the goal
@@ -849,7 +849,7 @@ double TebLocalPlannerROS::estimateLocalGoalOrientation(const std::vector<geomet
     }     
   }
   
-  // reduce number of poses taken into account if the desired number of poses is not available
+  // 如果期望的位姿数没有达到，减少被考虑的位姿数
   moving_average_length = std::min(moving_average_length, n-current_goal_idx-1 ); // maybe redundant, since we have checked the vicinity of the goal before
   
   std::vector<double> candidates;
@@ -859,12 +859,12 @@ double TebLocalPlannerROS::estimateLocalGoalOrientation(const std::vector<geomet
   int range_end = current_goal_idx + moving_average_length;
   for (int i = current_goal_idx; i < range_end; ++i)
   {
-    // Transform pose of the global plan to the planning frame
+    // 位姿从全局坐标转换到路径坐标系下
     const geometry_msgs::PoseStamped& pose = global_plan.at(i+1);
     tf::poseStampedMsgToTF(pose, tf_pose_kp1);
     tf_pose_kp1.setData(tf_plan_to_global * tf_pose_kp1);
       
-    // calculate yaw angle  
+    // 计算yaw角度 
     candidates.push_back( std::atan2(tf_pose_kp1.getOrigin().getY() - tf_pose_k.getOrigin().getY(),
 			  tf_pose_kp1.getOrigin().getX() - tf_pose_k.getOrigin().getX() ) );
     
@@ -877,23 +877,23 @@ double TebLocalPlannerROS::estimateLocalGoalOrientation(const std::vector<geomet
       
 void TebLocalPlannerROS::saturateVelocity(double& vx, double& vy, double& omega, double max_vel_x, double max_vel_y, double max_vel_theta, double max_vel_x_backwards) const
 {
-  // Limit translational velocity for forward driving
+  // 限制前向的线速度
   if (vx > max_vel_x)
     vx = max_vel_x;
   
-  // limit strafing velocity
+  // 限制横向线速度
   if (vy > max_vel_y)
     vy = max_vel_y;
   else if (vy < -max_vel_y)
     vy = -max_vel_y;
   
-  // Limit angular velocity
+  // 限制角速度
   if (omega > max_vel_theta)
     omega = max_vel_theta;
   else if (omega < -max_vel_theta)
     omega = -max_vel_theta;
   
-  // Limit backwards velocity
+  // 限制向后的速度
   if (max_vel_x_backwards<=0)
   {
     ROS_WARN_ONCE("TebLocalPlannerROS(): Do not choose max_vel_x_backwards to be <=0. Disable backwards driving by increasing the optimization weight for penalyzing backwards driving.");
@@ -1037,17 +1037,17 @@ RobotFootprintModelPtr TebLocalPlannerROS::getRobotFootprintFromParamServer(cons
     return boost::make_shared<PointRobotFootprint>();
   }
     
-  // point  
+  // 点状 
   if (model_name.compare("point") == 0)
   {
     ROS_INFO("Footprint model 'point' loaded for trajectory optimization.");
     return boost::make_shared<PointRobotFootprint>();
   }
   
-  // circular
+  // 圆形
   if (model_name.compare("circular") == 0)
   {
-    // get radius
+    // 获取半径
     double radius;
     if (!nh.getParam("footprint_model/radius", radius))
     {
@@ -1059,17 +1059,17 @@ RobotFootprintModelPtr TebLocalPlannerROS::getRobotFootprintFromParamServer(cons
     return boost::make_shared<CircularRobotFootprint>(radius);
   }
   
-  // line
+  // 线型
   if (model_name.compare("line") == 0)
   {
-    // check parameters
+    // 检查参数
     if (!nh.hasParam("footprint_model/line_start") || !nh.hasParam("footprint_model/line_end"))
     {
       ROS_ERROR_STREAM("Footprint model 'line' cannot be loaded for trajectory optimization, since param '" << nh.getNamespace() 
                        << "/footprint_model/line_start' and/or '.../line_end' do not exist. Using point-model instead.");
       return boost::make_shared<PointRobotFootprint>();
     }
-    // get line coordinates
+    // 获取线段两点的坐标
     std::vector<double> line_start, line_end;
     nh.getParam("footprint_model/line_start", line_start);
     nh.getParam("footprint_model/line_end", line_end);
@@ -1085,10 +1085,10 @@ RobotFootprintModelPtr TebLocalPlannerROS::getRobotFootprintFromParamServer(cons
     return boost::make_shared<LineRobotFootprint>(Eigen::Map<const Eigen::Vector2d>(line_start.data()), Eigen::Map<const Eigen::Vector2d>(line_end.data()));
   }
   
-  // two circles
+  // 双圆形
   if (model_name.compare("two_circles") == 0)
   {
-    // check parameters
+    // 参数检查
     if (!nh.hasParam("footprint_model/front_offset") || !nh.hasParam("footprint_model/front_radius") 
         || !nh.hasParam("footprint_model/rear_offset") || !nh.hasParam("footprint_model/rear_radius"))
     {
@@ -1106,11 +1106,11 @@ RobotFootprintModelPtr TebLocalPlannerROS::getRobotFootprintFromParamServer(cons
     return boost::make_shared<TwoCirclesRobotFootprint>(front_offset, front_radius, rear_offset, rear_radius);
   }
 
-  // polygon
+  // 多边形
   if (model_name.compare("polygon") == 0)
   {
 
-    // check parameters
+    // 参数检查
     XmlRpc::XmlRpcValue footprint_xmlrpc;
     if (!nh.getParam("footprint_model/vertices", footprint_xmlrpc) )
     {
@@ -1118,7 +1118,7 @@ RobotFootprintModelPtr TebLocalPlannerROS::getRobotFootprintFromParamServer(cons
                        << "/footprint_model/vertices' does not exist. Using point-model instead.");
       return boost::make_shared<PointRobotFootprint>();
     }
-    // get vertices
+    // 获取顶点
     if (footprint_xmlrpc.getType() == XmlRpc::XmlRpcValue::TypeArray)
     {
       try
@@ -1152,7 +1152,7 @@ RobotFootprintModelPtr TebLocalPlannerROS::getRobotFootprintFromParamServer(cons
        
 Point2dContainer TebLocalPlannerROS::makeFootprintFromXMLRPC(XmlRpc::XmlRpcValue& footprint_xmlrpc, const std::string& full_param_name)
 {
-   // Make sure we have an array of at least 3 elements.
+   // 确保获得一个含有至少3个点的矩阵
    if (footprint_xmlrpc.getType() != XmlRpc::XmlRpcValue::TypeArray ||
        footprint_xmlrpc.size() < 3)
    {
@@ -1167,7 +1167,7 @@ Point2dContainer TebLocalPlannerROS::makeFootprintFromXMLRPC(XmlRpc::XmlRpcValue
  
    for (int i = 0; i < footprint_xmlrpc.size(); ++i)
    {
-     // Make sure each element of the list is an array of size 2. (x and y coordinates)
+     // 确保每个点有x,y坐标
      XmlRpc::XmlRpcValue point = footprint_xmlrpc[ i ];
      if (point.getType() != XmlRpc::XmlRpcValue::TypeArray ||
          point.size() != 2)
@@ -1189,7 +1189,7 @@ Point2dContainer TebLocalPlannerROS::makeFootprintFromXMLRPC(XmlRpc::XmlRpcValue
 
 double TebLocalPlannerROS::getNumberFromXMLRPC(XmlRpc::XmlRpcValue& value, const std::string& full_param_name)
 {
-  // Make sure that the value we're looking at is either a double or an int.
+  // 确保value是double或者int
   if (value.getType() != XmlRpc::XmlRpcValue::TypeInt &&
       value.getType() != XmlRpc::XmlRpcValue::TypeDouble)
   {
