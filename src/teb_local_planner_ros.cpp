@@ -118,6 +118,7 @@ void TebLocalPlannerROS::initialize(std::string name, tf::TransformListener* tf,
     robot_base_frame_ = costmap_ros_->getBaseFrameID();
 
     //初始化用于多边形转换器的代价地图
+    //costmap_converter
     if (!cfg_.obstacles.costmap_converter_plugin.empty())
     {
       try
