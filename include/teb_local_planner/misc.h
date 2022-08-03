@@ -53,7 +53,7 @@ namespace teb_local_planner
 enum class RotType { left, none, right };
 
 /** 
- * @brief Check whether two variables (double) are close to each other
+ * @brief 检查两个变量（double）是否相互接近
  * @param a the first value to compare
  * @param b the second value to compare
  * @param epsilon precision threshold
@@ -65,7 +65,7 @@ inline bool is_close(double a, double b, double epsilon = 1e-4)
 }
 
 /** 
- * @brief Return the average angle of an arbitrary number of given angles [rad]
+ * @brief 返回任意数量给定角度的平均角度 [rad]
  * @param angles vector containing all angles
  * @return average / mean angle, that is normalized to [-pi, pi]
  */
@@ -83,12 +83,12 @@ inline double average_angles(const std::vector<double>& angles)
       return std::atan2(y, x);
 }
 
-/** @brief Small helper function: check if |a|<|b| */
+/** @brief 小辅助函数：检查 |a|<|b| */
 inline bool smaller_than_abs(double i, double j) {return std::fabs(i)<std::fabs(j);}
 
 
 /**
- * @brief Calculate a fast approximation of a sigmoid function
+ * @brief 计算 sigmoid 函数的快速逼近
  * @details The following function is implemented: \f$ x / (1 + |x|) \f$
  * @param x the argument of the function
 */
@@ -98,7 +98,7 @@ inline double fast_sigmoid(double x)
 }
 
 /**
- * @brief Calculate Euclidean distance between two 2D point datatypes
+ * @brief 计算两个二维点数据类型之间的欧几里得距离
  * @param point1 object containing fields x and y
  * @param point2 object containing fields x and y
  * @return Euclidean distance: ||point2-point1||
@@ -111,7 +111,7 @@ inline double distance_points2d(const P1& point1, const P2& point2)
 
 
 /**
- * @brief Calculate the 2d cross product (returns length of the resulting vector along the z-axis in 3d)
+ * @brief 计算 2d 叉积（返回结果向量在 3d 中沿 z 轴的长度）
  * @param v1 object containing public methods x() and y()
  * @param v2 object containing fields x() and y()
  * @return magnitude that would result in the 3D case (along the z-axis)
@@ -123,7 +123,7 @@ inline double cross2d(const V1& v1, const V2& v2)
 }
 
 /** 
- * @brief Helper function that returns the const reference to a value defined by either its raw pointer type or const reference.
+ * @brief 帮助函数返回对由其原始指针类型或 const 引用定义的值的 const 引用
  * 
  * Return a constant reference for boths input variants (pointer or reference).
  * @remarks Makes only sense in combination with the overload getConstReference(const T& val).
