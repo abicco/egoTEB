@@ -56,78 +56,79 @@ namespace teb_local_planner
 
 /**
  * @class TebConfig
- * @brief Config class for the teb_local_planner and its components.
+ * @brief teb_local_planner 及其组件的配置类.
  */  
 class TebConfig
 {
 public:
   
-  std::string odom_topic; //!< Topic name of the odometry message, provided by the robot driver or simulator
-  std::string map_frame; //!< Global planning frame
+  std::string odom_topic; //!< 里程计消息的主题名称，由机器人驱动程序或模拟器提供
+  std::string map_frame; //!< 全局规划坐标系
   
   //! Trajectory related parameters
   struct Trajectory
-  {
-    double teb_autosize; //!< Enable automatic resizing of the trajectory w.r.t to the temporal resolution (recommended)
-    double dt_ref; //!< Desired temporal resolution of the trajectory (should be in the magniture of the underlying control rate)
+  { 
+    double teb_autosize; //!< 相对于（推荐）时间分辨率的轨迹的使能自动调整大小
+    double dt_ref; //!< 所需的轨迹时间分辨率（应该在基本控制率的范围内）
     double dist_step;
-    double dt_hysteresis; //!< Hysteresis for automatic resizing depending on the current temporal resolution (dt): usually 10% of dt_ref
-    int min_samples; //!< Minimum number of samples (should be always greater than 2)
-    int max_samples; //!< Maximum number of samples; Warning: if too small the discretization/resolution might not be sufficient for the given robot model or obstacle avoidance does not work anymore.
-    bool global_plan_overwrite_orientation; //!< Overwrite orientation of local subgoals provided by the global planner
-    bool allow_init_with_backwards_motion; //!< If true, the underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap (this is only recommended if the robot is equipped with rear sensors)
-    double global_plan_viapoint_sep; //!< Min. separation between each two consecutive via-points extracted from the global plan (if negative: disabled)
-    bool via_points_ordered; //!< If true, the planner adheres to the order of via-points in the storage container
-    double max_global_plan_lookahead_dist; //!< Specify maximum length (cumulative Euclidean distances) of the subset of the global plan taken into account for optimization [if <=0: disabled; the length is also bounded by the local costmap size!]
-    bool exact_arc_length; //!< If true, the planner uses the exact arc length in velocity, acceleration and turning rate computations [-> increased cpu time], otherwise the euclidean approximation is used.
+    double dt_hysteresis; //!< 根据当前时间分辨率 (dt) 自动调整大小的滞后：通常为 dt_ref 的 10%
+    int min_samples; //!< 最小样本数（应始终大于 2）
+    int max_samples; //!< 最大样本数；警告：如果太小，离散化/分辨率可能不足以满足给定的机器人模型或避障不再起作用。
+    bool global_plan_overwrite_orientation; //!< 覆盖全局规划器提供的局部子目标的方向
+    bool allow_init_with_backwards_motion; //!< 如果为 true，则可能会使用向后运动初始化基础轨迹，以防目标位于本地成本图中的起点之后（仅在机器人配备后部传感器时才建议这样做）
+    double global_plan_viapoint_sep; //!< 从全局计划中提取的每两个连续通过点之间的最小间隔（如果为负：禁用）
+    bool via_points_ordered; //!< 如果为真，则规划器遵循存储容器中的通过点顺序
+    double max_global_plan_lookahead_dist; //!< 指定考虑到优化的全局计划子集的最大长度（累积欧几里德距离）[如果 <=0：禁用；长度也受本地成本图大小的限制！]
+    bool exact_arc_length; //!< 如果为真，则规划器在速度、加速度和转弯速率计算中使用精确的弧长 [-> 增加的 cpu 时间]，否则使用欧几里德近似。
     double force_reinit_new_goal_dist; //!< Reinitialize the trajectory if a previous goal is updated with a seperation of more than the specified value in meters (skip hot-starting)
-    int feasibility_check_no_poses; //!< Specify up to which pose on the predicted plan the feasibility should be checked each sampling interval.
+    int feasibility_check_no_poses; //!< 指定每个采样间隔应检查预测计划上的位姿的可行性。
     bool egocircle_feasibility;
-    bool publish_feedback; //!< Publish planner feedback containing the full trajectory and a list of active obstacles (should be enabled only for evaluation or debugging purposes)
+    bool publish_feedback; //!< 发布包含完整轨迹和活动障碍物列表的规划器反馈（应仅用于评估或调试目的）
+
   } trajectory; //!< Trajectory related parameters
     
   //! Robot related parameters
   struct Robot
   {
-    double max_vel_x; //!< Maximum translational velocity of the robot
-    double max_vel_x_backwards; //!< Maximum translational velocity of the robot for driving backwards
-    double max_vel_y; //!< Maximum strafing velocity of the robot (should be zero for non-holonomic robots!)
-    double max_vel_theta; //!< Maximum angular velocity of the robot
-    double acc_lim_x; //!< Maximum translational acceleration of the robot
-    double acc_lim_y; //!< Maximum strafing acceleration of the robot
-    double acc_lim_theta; //!< Maximum angular acceleration of the robot
-    double min_turning_radius; //!< Minimum turning radius of a carlike robot (diff-drive robot: zero); 
-    double wheelbase; //!< The distance between the drive shaft and steering axle (only required for a carlike robot with 'cmd_angle_instead_rotvel' enabled); The value might be negative for back-wheeled robots!
-    bool cmd_angle_instead_rotvel; //!< Substitute the rotational velocity in the commanded velocity message by the corresponding steering angle (check 'axles_distance')
-    bool is_footprint_dynamic; //<! If true, updated the footprint before checking trajectory feasibility
+    double max_vel_x; //!< 机器人的最大平移速度
+    double max_vel_x_backwards; //!< 机器人向后的最大平移速度
+    double max_vel_y; //!< 机器人的最大扫射速度（对于非完整机器人应该为零！）
+    double max_vel_theta; //!< 机器人最大角速度
+    double acc_lim_x; //!< 机器人最大平移加速度
+    double acc_lim_y; //!< 机器人最大扫射加速度
+    double acc_lim_theta; //!< 机器人最大角加速度
+    double min_turning_radius; //!< 类车机器人的最小转弯半径（差速驱动机器人：零）; 
+    double wheelbase; //!< 驱动轴和转向轴之间的距离（仅适用于启用 'cmd_angle_instead_rotvel' 的类车机器人）；对于后轮机器人，该值可能为负！
+    bool cmd_angle_instead_rotvel; //!< 用相应的转向角代替指令速度消息中的旋转速度（检查“axles_distance”）
+    bool is_footprint_dynamic; //<! 如果为真，则在检查轨迹可行性之前更新足迹
   } robot; //!< Robot related parameters
   
   //! Goal tolerance related parameters
   struct GoalTolerance
   {
-    double yaw_goal_tolerance; //!< Allowed final orientation error
-    double xy_goal_tolerance; //!< Allowed final euclidean distance to the goal position
-    bool free_goal_vel; //!< Allow the robot's velocity to be nonzero (usally max_vel) for planning purposes
-    bool complete_global_plan; // true prevents the robot from ending the path early when it cross the end goal
+    double yaw_goal_tolerance; //!< 允许的最终方向错误
+    double xy_goal_tolerance; //!< 到目标位置的允许最终欧几里得距离
+    bool free_goal_vel; //!< 出于规划目的，允许机器人的速度为非零（通常为 max_vel）
+    bool complete_global_plan; // true 防止机器人在越过最终目标时提前结束路径
   } goal_tolerance; //!< Goal tolerance related parameters
 
   //! Obstacle related parameters
   struct Obstacles
   {
-    double min_obstacle_dist; //!< Minimum desired separation from obstacles
-    double inflation_dist; //!< buffer zone around obstacles with non-zero penalty costs (should be larger than min_obstacle_dist in order to take effect)
-    double dynamic_obstacle_inflation_dist; //!< Buffer zone around predicted locations of dynamic obstacles with non-zero penalty costs (should be larger than min_obstacle_dist in order to take effect)
-    bool include_dynamic_obstacles; //!< Specify whether the movement of dynamic obstacles should be predicted by a constant velocity model (this also effects homotopy class planning); If false, all obstacles are considered to be static.
-    bool include_costmap_obstacles; //!< Specify whether the obstacles in the costmap should be taken into account directly
-    bool include_egocircle_obstacles; //!< Specify whether obstacles should be included from the egocircle
-    double costmap_obstacles_behind_robot_dist; //!< Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters)
-    int obstacle_poses_affected; //!< The obstacle position is attached to the closest pose on the trajectory to reduce computational effort, but take a number of neighbors into account as well
-    bool legacy_obstacle_association; //!< If true, the old association strategy is used (for each obstacle, find the nearest TEB pose), otherwise the new one (for each teb pose, find only "relevant" obstacles).
-    double obstacle_association_force_inclusion_factor; //!< The non-legacy obstacle association technique tries to connect only relevant obstacles with the discretized trajectory during optimization, all obstacles within a specifed distance are forced to be included (as a multiple of min_obstacle_dist), e.g. choose 2.0 in order to consider obstacles within a radius of 2.0*min_obstacle_dist.
-    double obstacle_association_cutoff_factor; //!< See obstacle_association_force_inclusion_factor, but beyond a multiple of [value]*min_obstacle_dist all obstacles are ignored during optimization. obstacle_association_force_inclusion_factor is processed first.
-    std::string costmap_converter_plugin; //!< Define a plugin name of the costmap_converter package (costmap cells are converted to points/lines/polygons)
-    bool costmap_converter_spin_thread; //!< If \c true, the costmap converter invokes its callback queue in a different thread
-    int costmap_converter_rate; //!< The rate that defines how often the costmap_converter plugin processes the current costmap (the value should not be much higher than the costmap update rate)
+    double min_obstacle_dist; //!< 与障碍物的最小期望间隔
+    double inflation_dist; //!< 具有非零惩罚成本的障碍物周围的缓冲区（应大于 min_obstacle_dist 才能生效）
+    double dynamic_obstacle_inflation_dist; //!< 具有非零惩罚成本的动态障碍物预测位置周围的缓冲区（应大于 min_obstacle_dist 才能生效）
+    bool include_dynamic_obstacles; //!< 指定是否应通过恒速模型预测动态障碍物的运动（这也会影响同伦类规划）；如果为 false，则所有障碍物都被认为是静态的。
+    bool include_costmap_obstacles; //!< 指定是否应直接考虑costmap中的障碍
+    bool include_egocircle_obstacles; //!< 指定是否应从自我圈中包含障碍物
+    double costmap_obstacles_behind_robot_dist; //!< 限制在机器人后面进行规划时考虑的占用的局部代价地图障碍（以米为单位指定距离）
+    int obstacle_poses_affected; //!< 障碍物位置附加到轨迹上最近的位姿以减少计算量，但也要考虑许多邻居
+    bool legacy_obstacle_association; //!< 如果为真，则使用旧的关联策略（对于每个障碍物，找到最近的 TEB 位姿），否则使用新的（对于每个 teb 位姿，只找到“相关”障碍物）。
+    double obstacle_association_force_inclusion_factor; //!< 非传统障碍物关联技术在优化过程中尝试仅将相关障碍物与离散化轨迹连接，强制包含指定距离内的所有障碍物（作为 min_obstacle_dist 的倍数），例如选择 2.0 以考虑 2.0*min_obstacle_dist 半径内的障碍物。
+    double obstacle_association_cutoff_factor; //!< 请参见障碍物关联力_包含_因子，但超出 [值]*min_obstacle_dist 的倍数后，优化期间将忽略所有障碍物。 barrier_association_force_inclusion_factor 首先处理。
+    std::string costmap_converter_plugin; //!< 定义 costmap_converter 包的插件名称（costmap 单元转换为点/线/多边形）
+    bool costmap_converter_spin_thread; //!< 如果为真，costmap 转换器在不同的线程中调用其回调队列
+    int costmap_converter_rate; //!< 定义 costmap_converter 插件处理当前 costmap 频率的速率（该值不应高于 costmap 更新速率）
   } obstacles; //!< Obstacle related parameters
 
   struct Gaps
@@ -140,82 +141,82 @@ public:
   //! Optimization related parameters
   struct Optimization
   {
-    int no_inner_iterations; //!< Number of solver iterations called in each outerloop iteration
-    int no_outer_iterations; //!< Each outerloop iteration automatically resizes the trajectory and invokes the internal optimizer with no_inner_iterations
+    int no_inner_iterations; //!< 每次外循环迭代中调用的求解器迭代次数
+    int no_outer_iterations; //!< 每次外循环迭代都会自动调整轨迹大小并使用 no_inner_iterations 调用内部优化器
     
-    bool optimization_activate; //!< Activate the optimization
-    bool optimization_verbose; //!< Print verbose information
+    bool optimization_activate; //!< 激活优化
+    bool optimization_verbose; //!< 打印详细信息
     
-    double penalty_epsilon; //!< Add a small safety margin to penalty functions for hard-constraint approximations
+    double penalty_epsilon; //!< 为硬约束近似的惩罚函数添加一个小的安全余量
     
-    double weight_max_vel_x; //!< Optimization weight for satisfying the maximum allowed translational velocity
-    double weight_max_vel_y; //!< Optimization weight for satisfying the maximum allowed strafing velocity (in use only for holonomic robots)
-    double weight_max_vel_theta; //!< Optimization weight for satisfying the maximum allowed angular velocity
-    double weight_acc_lim_x; //!< Optimization weight for satisfying the maximum allowed translational acceleration
-    double weight_acc_lim_y; //!< Optimization weight for satisfying the maximum allowed strafing acceleration (in use only for holonomic robots)
-    double weight_acc_lim_theta; //!< Optimization weight for satisfying the maximum allowed angular acceleration
-    double weight_kinematics_nh; //!< Optimization weight for satisfying the non-holonomic kinematics
-    double weight_kinematics_forward_drive; //!< Optimization weight for forcing the robot to choose only forward directions (positive transl. velocities, only diffdrive robot)
-    double weight_kinematics_turning_radius; //!< Optimization weight for enforcing a minimum turning radius (carlike robots)
-    double weight_optimaltime; //!< Optimization weight for contracting the trajectory w.r.t transition time
-    double weight_obstacle; //!< Optimization weight for satisfying a minimum separation from obstacles
-    double weight_inflation; //!< Optimization weight for the inflation penalty (should be small)
-    double weight_dynamic_obstacle; //!< Optimization weight for satisfying a minimum separation from dynamic obstacles    
-    double weight_dynamic_obstacle_inflation; //!< Optimization weight for the inflation penalty of dynamic obstacles (should be small)
-    double weight_viapoint; //!< Optimization weight for minimizing the distance to via-points
-    double weight_prefer_rotdir; //!< Optimization weight for preferring a specific turning direction (-> currently only activated if an oscillation is detected, see 'oscillation_recovery'
+    double weight_max_vel_x; //!< 满足最大允许平移速度的优化权重
+    double weight_max_vel_y; //!< 满足最大允许扫射速度的优化权重（仅用于完整机器人）
+    double weight_max_vel_theta; //!< 满足最大允许角速度的优化权重
+    double weight_acc_lim_x; //!< 满足最大允许平移加速度的优化权重
+    double weight_acc_lim_y; //!< 满足最大允许扫射加速度的优化权重（仅用于完整机器人
+    double weight_acc_lim_theta; //!< 满足最大允许角加速度的优化权重
+    double weight_kinematics_nh; //!< 满足非完整运动学的优化权重
+    double weight_kinematics_forward_drive; //!< 强制机器人仅选择正向方向的优化权重（正平移速度，仅 diffdrive 机器人）
+    double weight_kinematics_turning_radius; //!< 执行最小转弯半径的优化权重（类似汽车的机器人）
+    double weight_optimaltime; //!< 用于收缩相对于过渡时间的轨迹优化权重
+    double weight_obstacle; //!< 满足与障碍物的最小距离的优化权重
+    double weight_inflation; //!< 膨胀惩罚的优化权重（应该很小）
+    double weight_dynamic_obstacle; //!< 满足与动态障碍物的最小间隔的优化权重    
+    double weight_dynamic_obstacle_inflation; //!< 动态障碍物膨胀惩罚的优化权重（应该很小）
+    double weight_viapoint; //!< 用于最小化到过孔点的距离的优化权重
+    double weight_prefer_rotdir; //!< 偏好特定转向方向的优化权重（-> 当前仅在检测到振荡时激活，请参阅“oscillation_recovery”
     double weight_gap;
     double gap_theta_start;
     double gap_theta_end;
     
-    double weight_adapt_factor; //!< Some special weights (currently 'weight_obstacle') are repeatedly scaled by this factor in each outer TEB iteration (weight_new = weight_old*factor); Increasing weights iteratively instead of setting a huge value a-priori leads to better numerical conditions of the underlying optimization problem.
+    double weight_adapt_factor; //!< 一些特殊的权重（当前为“weight_obstacle”）在每个外部 TEB 迭代中被这个因子重复缩放（weight_new = weight_old*factor）；迭代地增加权重而不是先验地设置一个巨大的值会导致潜在优化问题的更好的数值条件。
   } optim; //!< Optimization related parameters
   
   
   struct HomotopyClasses
   {
-    bool enable_homotopy_class_planning; //!< Activate homotopy class planning (Requires much more resources that simple planning, since multiple trajectories are optimized at once).
-    bool enable_multithreading; //!< Activate multiple threading for planning multiple trajectories in parallel.
-    bool simple_exploration; //!< If true, distinctive trajectories are explored using a simple left-right approach (pass each obstacle on the left or right side) for path generation, otherwise sample possible roadmaps randomly in a specified region between start and goal.
+    bool enable_homotopy_class_planning; //!< 激活同伦类规划（比简单规划需要更多的资源，因为同时优化了多个轨迹）。
+    bool enable_multithreading; //!< 激活多线程以并行规划多个轨迹。
+    bool simple_exploration; //!< 如果为真，则使用简单的左右方法（通过左侧或右侧的每个障碍物）探索独特的轨迹以生成路径，否则在起点和目标之间的指定区域随机采样可能的路线图。
     bool gap_exploration;
     bool gap_h_signature;
     bool use_gaps;
     
     
-    int max_number_classes; //!< Specify the maximum number of allowed alternative homotopy classes (limits computational effort)
+    int max_number_classes; //!< 指定允许的替代同伦类的最大数量（限制计算量）
     int feasibility_check_no_tebs;
-    double selection_cost_hysteresis; //!< Specify how much trajectory cost must a new candidate have w.r.t. a previously selected trajectory in order to be selected (selection if new_cost < old_cost*factor).
-    double selection_prefer_initial_plan; //!< Specify a cost reduction in the interval (0,1) for the trajectory in the equivalence class of the initial plan.
-    double selection_obst_cost_scale; //!< Extra scaling of obstacle cost terms just for selecting the 'best' candidate.
-    double selection_viapoint_cost_scale; //!< Extra scaling of via-point cost terms just for selecting the 'best' candidate.
-    bool selection_alternative_time_cost; //!< If true, time cost is replaced by the total transition time.
-    double switching_blocking_period; //!< Specify a time duration in seconds that needs to be expired before a switch to new equivalence class is allowed
+    double selection_cost_hysteresis; //!< 指定新候选人必须有多少轨迹成本 w.r.t.一个先前选择的轨迹以便被选择（如果 new_cost < old_cost*factor 则选择）。
+    double selection_prefer_initial_plan; //!< 为初始计划的等价类中的轨迹指定区间 (0,1) 的成本缩减。
+    double selection_obst_cost_scale; //!< 仅用于选择“最佳”候选者的障碍成本项的额外缩放。
+    double selection_viapoint_cost_scale; //!< 仅用于选择“最佳”候选者的通过点成本项的额外缩放。
+    bool selection_alternative_time_cost; //!< 如果为真，时间成本将被总转换时间所取代。
+    double switching_blocking_period; //!< 指定在允许切换到新的等价类之前需要过期的持续时间（以秒为单位）
 
-    int roadmap_graph_no_samples; //! < Specify the number of samples generated for creating the roadmap graph, if simple_exploration is turend off.
-    double roadmap_graph_area_width; //!< Random keypoints/waypoints are sampled in a rectangular region between start and goal. Specify the width of that region in meters.
-    double roadmap_graph_area_length_scale; //!< The length of the rectangular region is determined by the distance between start and goal. This parameter further scales the distance such that the geometric center remains equal!
-    double h_signature_prescaler; //!< Scale number of obstacle value in order to allow huge number of obstacles. Do not choose it extremly low, otherwise obstacles cannot be distinguished from each other (0.2<H<=1).
-    double h_signature_threshold; //!< Two h-signatures are assumed to be equal, if both the difference of real parts and complex parts are below the specified threshold.
+    int roadmap_graph_no_samples; //! < 如果关闭 simple_exploration，则指定为创建路线图生成的样本数。
+    double roadmap_graph_area_width; //!< 在起点和目标之间的矩形区域中对随机关键点/航点进行采样。以米为单位指定该区域的宽度。
+    double roadmap_graph_area_length_scale; //!< 矩形区域的长度由起点和终点之间的距离决定。此参数进一步缩放距离，使几何中心保持相等！
+    double h_signature_prescaler; //!< 缩放障碍物值的数量以允许大量障碍物。不要选择极低的，否则无法区分障碍物（0.2<H<=1）
+    double h_signature_threshold; //!< 如果实部和复部的差均低于指定阈值，则假定两个 h 签名相等。
     
-    double obstacle_keypoint_offset; //!< If simple_exploration is turned on, this parameter determines the distance on the left and right side of the obstacle at which a new keypoint will be cretead (in addition to min_obstacle_dist).
-    double obstacle_heading_threshold; //!< Specify the value of the normalized scalar product between obstacle heading and goal heading in order to take them (obstacles) into account for exploration [0,1]
+    double obstacle_keypoint_offset; //!< 如果打开了 simple_exploration，则此参数确定障碍物左侧和右侧的距离，在该距离处将创建一个新的关键点（除了 min_obstacle_dist）。
+    double obstacle_heading_threshold; //!< 指定障碍物航向和目标航向之间的归一化标量积的值，以便在探索时将它们（障碍物）考虑在内 [0,1]
     double detour_threshold;
-    bool viapoints_all_candidates; //!< If true, all trajectories of different topologies are attached to the current set of via-points, otherwise only the trajectory sharing the same one as the initial/global plan.
+    bool viapoints_all_candidates; //!< 如果为真，则不同拓扑的所有轨迹都附加到当前的一组通过点，否则只有与初始/全局计划共享相同的轨迹。
     
-    bool visualize_hc_graph; //!< Visualize the graph that is created for exploring new homotopy classes.
-    double visualize_with_time_as_z_axis_scale; //!< If this value is bigger than 0, the trajectory and obstacles are visualized in 3d using the time as the z-axis scaled by this value. Most useful for dynamic obstacles.
+    bool visualize_hc_graph; //!< 可视化为探索新的同伦类而创建的图。
+    double visualize_with_time_as_z_axis_scale; //!< 如果该值大于 0，则轨迹和障碍物在 3d 中可视化，使用时间作为由该值缩放的 z 轴。对于动态障碍最有用。
   } hcp;
   
   //! Recovery/backup related parameters
   struct Recovery
   {
-    bool shrink_horizon_backup; //!< Allows the planner to shrink the horizon temporary (50%) in case of automatically detected issues.
-    double shrink_horizon_min_duration; //!< Specify minimum duration for the reduced horizon in case an infeasible trajectory is detected.
-    bool oscillation_recovery; //!< Try to detect and resolve oscillations between multiple solutions in the same equivalence class (robot frequently switches between left/right/forward/backwards)
-    double oscillation_v_eps; //!< Threshold for the average normalized linear velocity: if oscillation_v_eps and oscillation_omega_eps are not exceeded both, a possible oscillation is detected
-    double oscillation_omega_eps; //!< Threshold for the average normalized angular velocity: if oscillation_v_eps and oscillation_omega_eps are not exceeded both, a possible oscillation is detected
-    double oscillation_recovery_min_duration; //!< Minumum duration [sec] for which the recovery mode is activated after an oscillation is detected.
-    double oscillation_filter_duration; //!< Filter length/duration [sec] for the detection of oscillations
+    bool shrink_horizon_backup; //!< 允许计划者在自动检测到问题的情况下暂时缩小范围 (50%)。
+    double shrink_horizon_min_duration; //!< 在检测到不可行轨迹的情况下，指定缩小范围的最小持续时间。
+    bool oscillation_recovery; //!< 尝试检测和解决同一等价类中多个解决方案之间的振荡（机器人经常在左/右/前/后之间切换）
+    double oscillation_v_eps; //!< 平均归一化线速度的阈值：如果oscillation_v_eps and oscillation_omega_eps两者都没有超过，那么检测到可能的振荡。
+    double oscillation_omega_eps; //!< 平均归一化角速度的阈值：如果oscillation_v_eps and oscillation_omega_eps两者都没有超过，那么检测到可能的振荡
+    double oscillation_recovery_min_duration; //!< 检测到振荡后激活恢复模式的最短持续时间 [sec]。
+    double oscillation_filter_duration; //!< 用于检测振荡的过滤器长度/持续时间 [秒]
   } recovery; //!< Parameters related to recovery and backup strategies
 
   
