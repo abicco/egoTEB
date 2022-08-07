@@ -49,11 +49,11 @@ namespace teb_local_planner
 
 /**
  * @class BaseRobotFootprintModel
- * @brief Abstract class that defines the interface for robot footprint/contour models
+ * @brief 定义机器人足迹/轮廓模型接口的抽象类
  * 
- * The robot model class is currently used in optimization only, since
- * taking the navigation stack footprint into account might be
- * inefficient. The footprint is only used for checking feasibility.
+ * 机器人模型类目前仅用于优化，因为考虑导航堆栈足迹可能效率低下。 
+ * 足迹仅用于检查可行性。
+ *  
  */
 class BaseRobotFootprintModel
 {
@@ -126,9 +126,9 @@ typedef boost::shared_ptr<const BaseRobotFootprintModel> RobotFootprintModelCons
  * @class PointRobotShape
  * @brief Class that defines a point-robot
  * 
- * Instead of using a CircularRobotFootprint this class might
- * be utitilzed and the robot radius can be added to the mininum distance 
- * parameter. This avoids a subtraction of zero each time a distance is calculated.
+ * 可以使用此类而不是使用 CircularRobotFootprint，
+ * 并且可以将机器人半径添加到最小距离参数中。 
+ * 这避免了每次计算距离时都减去零。
  */
 class PointRobotFootprint : public BaseRobotFootprintModel
 {
@@ -145,7 +145,7 @@ public:
   virtual ~PointRobotFootprint() {}
 
   /**
-    * @brief Calculate the distance between the robot and an obstacle
+    * @brief 计算机器人与障碍物之间的距离
     * @param current_pose Current robot pose
     * @param obstacle Pointer to the obstacle
     * @return Euclidean distance to the robot
@@ -156,7 +156,7 @@ public:
   }
   
   /**
-    * @brief Estimate the distance between the robot and the predicted location of an obstacle at time t
+    * @brief 估计时间 t 时机器人与障碍物的预测位置之间的距离
     * @param current_pose robot pose, from which the distance to the obstacle is estimated
     * @param obstacle Pointer to the dynamic obstacle (constant velocity model is assumed)
     * @param t time, for which the predicted distance to the obstacle is calculated
@@ -168,7 +168,7 @@ public:
   }
 
   /**
-   * @brief Compute the inscribed radius of the footprint model
+   * @brief 计算足迹模型的内接半径
    * @return inscribed radius
    */
   virtual double getInscribedRadius() {return 0.0;}
